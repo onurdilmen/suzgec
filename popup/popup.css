@@ -2,7 +2,8 @@
   --bg: #ffffff;
   --surface: #f4f4f5;
   --text: #18181b;
-  --muted: #71717a;
+  --muted: #52525b;
+  --on-accent: #ffffff;
   --line: #e4e4e7;
   --accent: #b91c1c;
   --accent-soft: #fee2e2;
@@ -19,6 +20,7 @@
     --line: #3f3f46;
     --accent: #f87171;
     --accent-soft: #450a0a;
+    --on-accent: #18181b;
     --ok: #4ade80;
   }
 }
@@ -130,7 +132,7 @@ body {
   border: 0;
   border-radius: 10px;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
