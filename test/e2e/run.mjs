@@ -138,6 +138,39 @@ try {
     assert.equal(await overlay.locator('#trap').getAttribute('data-suzgec-hidden'), 'overlay');
   });
 
+  await check('popup explains why each item was blocked', async () => {
+    await page.reload();
+    await page.waitForTimeout(1200);
+    const popup = await context.newPage();
+    const extId = new URL(worker.url()).host;
+    await popup.goto(`chrome-extension://${extId}/popup/popup.html`);
+    const tabId = await worker.evaluate(async () => (await chrome.tabs.query({ url: 'http://site.test/*' }))[0].id);
+    const state = await popup.evaluate((id) => chrome.runtime.sendMessage({ type: 'popup:getState', tabId: id, host: 'site.test' }), tabId);
+    await popup.close();
+    const entry = state.tab.log.find((e) => e.domain === 'ads-network.test');
+    assert.ok(entry, JSON.stringify(state.tab.log));
+    assert.ok(entry.reasons.includes('ad-size') && entry.reasons.includes('gambling') === false, JSON.stringify(entry));
+  });
+
+  await check('"not an ad" unhides the domain and wins over learning', async () => {
+    const popup = await context.newPage();
+    const extId = new URL(worker.url()).host;
+    await popup.goto(`chrome-extension://${extId}/popup/popup.html`);
+    await popup.evaluate(() => chrome.runtime.sendMessage({ type: 'popup:trust', domain: 'ads-network.test' }));
+    await popup.close();
+    hits.length = 0;
+    await page.reload();
+    await page.waitForTimeout(1200);
+    assert.equal(await page.locator('#ad1').isVisible(), true);
+    assert.ok(hits.includes('ads-network.test/banner.png'), hits.join(', '));
+    const rules = await worker.evaluate(() => chrome.declarativeNetRequest.getDynamicRules());
+    assert.ok(!rules.some((r) => r.action.type === 'block' && (r.condition.requestDomains ?? []).includes('ads-network.test')));
+    await worker.evaluate(async () => {
+      const { state } = await chrome.storage.local.get('state');
+      await chrome.storage.local.set({ state: { ...state, trusted: [] } });
+    });
+  });
+
   await check('pausing a site disables protection there', async () => {
     const popup = await context.newPage();
     const extId = new URL(worker.url()).host;

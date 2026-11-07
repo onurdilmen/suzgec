@@ -7,6 +7,8 @@ const H = globalThis.SuzgecHeuristics;
 
 const STATE_KEY = "state";
 const LEARNED_RULE_ID = 100000;
+const TRUSTED_RULE_ID = 100001;
+const MAX_LOG = 40;
 // A page controls its own DOM and can fake ad signals, so no single site may create a
 // global rule: a domain is learned only after independent sites report it.
 const STRONG_SITES = 2; // distinct sites with score >= LEARN_SCORE
@@ -15,6 +17,7 @@ const MAX_CANDIDATES = 1000;
 const MAX_CONTRIB_PER_SITE = 50; // a single site cannot flood the candidate list
 const MAX_LEARNED = 2000;
 const MAX_CUSTOM_PER_SITE = 200;
+const ALL_TYPES = ["main_frame"]; // extended below
 // Learned rules never include main_frame: a learned domain can't stop the user from visiting it.
 const SUBRESOURCE_TYPES = [
   "sub_frame",
@@ -29,6 +32,7 @@ const SUBRESOURCE_TYPES = [
   "websocket",
   "other",
 ];
+ALL_TYPES.push(...SUBRESOURCE_TYPES);
 const SCRIPT_IDS = ["suzgec-main", "suzgec-isolated"];
 
 const DEFAULT_STATE = Object.freeze({
@@ -37,6 +41,7 @@ const DEFAULT_STATE = Object.freeze({
   candidates: {}, // domain -> { hits, from }
   custom: {}, // registrable domain -> [selectors]
   trackers: true,
+  trusted: [], // domains the user marked "not an ad": never hidden, learned or blocked
   contrib: {}, // site -> number of domains it has ever reported (persistent cap)
   total: 0,
 });
@@ -86,9 +91,20 @@ const applyDynamicRules = async (state) => {
         },
       ]
     : [];
+  const trusted = state.trusted ?? [];
+  const trustedRules = trusted.length
+    ? [
+        {
+          id: TRUSTED_RULE_ID,
+          priority: 50, // beats the static and learned block rules
+          action: { type: "allow" },
+          condition: { requestDomains: trusted, resourceTypes: ALL_TYPES },
+        },
+      ]
+    : [];
   await chrome.declarativeNetRequest.updateDynamicRules({
     removeRuleIds: existing.map((rule) => rule.id),
-    addRules: [...pauseRules, ...learnedRules],
+    addRules: [...pauseRules, ...learnedRules, ...trustedRules],
   });
 };
 
@@ -146,16 +162,39 @@ const applyAll = async (state) => {
 
 // ---- per-tab counters (session storage) ------------------------------------
 const tabKey = (tabId) => `tab:${tabId}`;
-const EMPTY_TAB = Object.freeze({ popup: 0, hidden: 0 });
+const EMPTY_TAB = Object.freeze({ popup: 0, hidden: 0, log: [] });
 
-const bumpTab = async (tabId, field) => {
-  if (tabId == null || tabId < 0) return;
+// Session writes are serialised too: many ads report at once.
+let tabQueue = Promise.resolve();
+const updateTab = (tabId, mutate) => {
+  if (tabId == null || tabId < 0) return Promise.resolve();
   const key = tabKey(tabId);
-  const { [key]: current = EMPTY_TAB } = await chrome.storage.session.get(key);
-  await chrome.storage.session.set({
-    [key]: { ...current, [field]: current[field] + 1 },
+  const run = tabQueue.then(async () => {
+    const { [key]: current = EMPTY_TAB } = await chrome.storage.session.get(key);
+    await chrome.storage.session.set({ [key]: mutate({ ...EMPTY_TAB, ...current }) });
   });
+  tabQueue = run.catch(() => {});
+  return run;
 };
+
+const REASONS = new Set([
+  "cross-site", "ad-size", "media", "gambling", "ad-context", "same-advertiser",
+  "overlay-link", "overlay-layer",
+]);
+
+const recordBlock = (tabId, { kind, url, reasons }) =>
+  updateTab(tabId, (tab) => {
+    const host = hostOf(url);
+    const domain = host ? H.learnKey(host) : kind === "popup" ? "(boş popup)" : "?";
+    const clean = (Array.isArray(reasons) ? reasons : [])
+      .map(String)
+      .filter((r) => REASONS.has(r));
+    const existing = tab.log.find((e) => e.domain === domain && e.kind === kind);
+    const log = existing
+      ? tab.log.map((e) => (e === existing ? { ...e, count: e.count + 1 } : e))
+      : [{ domain, kind, reasons: clean, count: 1 }, ...tab.log].slice(0, MAX_LOG);
+    return { ...tab, [kind]: tab[kind] + 1, log };
+  });
 
 // ---- learning --------------------------------------------------------------
 const hostOf = (url) => {
@@ -185,6 +224,7 @@ const learnFrom = ({ url, score, kind, pageHost }) =>
     const domain = H.learnKey(host);
     if (
       state.learned[domain] ||
+      (state.trusted ?? []).includes(domain) ||
       Object.keys(state.learned).length >= MAX_LEARNED
     )
       return state;
@@ -261,11 +301,15 @@ const fromContent = async (message, sender) => {
       const selectors = state.custom[site] ?? [];
       if (tabId != null)
         await injectCustom(tabId, sender.frameId ?? 0, selectors);
-      return { ok: true };
+      return { ok: true, trusted: state.trusted ?? [] };
     }
     case "blocked": {
       const kind = message.kind === "popup" ? "popup" : "hidden";
-      await bumpTab(tabId, kind);
+      await recordBlock(tabId, {
+        kind,
+        url: String(message.url ?? ""),
+        reasons: message.reasons,
+      });
       await updateState((state) => ({ ...state, total: state.total + 1 }));
       // Only top-level documents count as a reporting site, and the site comes from the
       // browser (sender.tab.url), not from the message: a page can't stack iframes of
@@ -310,7 +354,24 @@ const fromPopup = async (message) => {
         await chrome.storage.session.get(tabKey(message.tabId));
       const network = await chrome.declarativeNetRequest
         .getMatchedRules({ tabId: message.tabId })
-        .then((r) => r.rulesMatchedInfo.length)
+        .then(({ rulesMatchedInfo }) =>
+          rulesMatchedInfo.reduce(
+            (acc, { rule }) => {
+              const bucket =
+                rule.rulesetId === "ads"
+                  ? "ads"
+                  : rule.rulesetId === "trackers"
+                    ? "trackers"
+                    : rule.ruleId === LEARNED_RULE_ID
+                      ? "learned"
+                      : null;
+              return bucket
+                ? { ...acc, total: acc.total + 1, [bucket]: acc[bucket] + 1 }
+                : acc;
+            },
+            { total: 0, ads: 0, trackers: 0, learned: 0 },
+          ),
+        )
         .catch(() => null);
       return {
         site,
@@ -322,6 +383,7 @@ const fromPopup = async (message) => {
           .map(([domain, info]) => ({ domain, ...info }))
           .sort((a, b) => b.at - a.at),
         customCount: (state.custom[site] ?? []).length,
+        trusted: state.trusted ?? [],
       };
     }
     case "popup:togglePause": {
@@ -333,6 +395,21 @@ const fromPopup = async (message) => {
           : [...s.paused, site],
       }));
       await applyAll(state);
+      return { ok: true };
+    }
+    case "popup:trust":
+    case "popup:untrust": {
+      const domain = H.learnKey(String(message.domain ?? "").toLowerCase());
+      if (!/^[a-z0-9.-]+\.[a-z0-9-]+$/.test(domain)) return { ok: false };
+      const trust = message.type === "popup:trust";
+      const state = await updateState((s) => {
+        const list = (s.trusted ?? []).filter((d) => d !== domain);
+        if (!trust) return { ...s, trusted: list };
+        const { [domain]: _l, ...learned } = s.learned;
+        const { [domain]: _c, ...candidates } = s.candidates;
+        return { ...s, learned, candidates, trusted: [...list, domain] };
+      });
+      await applyDynamicRules(state);
       return { ok: true };
     }
     case "popup:toggleTrackers": {

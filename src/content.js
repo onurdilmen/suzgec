@@ -12,6 +12,16 @@
   const MEDIA = "img,video,iframe,picture,canvas,svg";
   const pageHost = location.hostname;
   const evaluated = new WeakSet();
+  let trusted = new Set(); // domains the user marked "not an ad"
+  let trustReady = false;
+
+  const domainOf = (url) => {
+    try {
+      return H.learnKey(new URL(url, location.href).hostname);
+    } catch {
+      return "";
+    }
+  };
 
   const send = (message) => {
     try {
@@ -60,10 +70,10 @@
     return node;
   };
 
-  const hide = (el, kind, url, score) => {
-    if (el.hasAttribute(HIDDEN_ATTR)) return;
+  const hide = (el, kind, url, score, reasons = []) => {
+    if (el.hasAttribute(HIDDEN_ATTR) || trusted.has(domainOf(url))) return;
     el.setAttribute(HIDDEN_ATTR, kind);
-    send({ type: "blocked", kind, url, score });
+    send({ type: "blocked", kind, url, score, reasons });
   };
 
   // Once a domain is proven to serve an ad on this page, weaker links to it
@@ -75,27 +85,35 @@
     if (!domain || flaggedDomains.has(domain)) return;
     flaggedDomains.add(domain);
     for (const item of pendingByDomain.get(domain) ?? []) {
-      if (item.el.isConnected) hide(item.el, item.kind, item.url, item.score);
+      if (item.el.isConnected)
+        hide(item.el, item.kind, item.url, item.score, [
+          ...item.reasons,
+          "same-advertiser",
+        ]);
     }
     pendingByDomain.delete(domain);
   };
 
   const applyVerdict = (el, result, kind, url) => {
-    if (result.score === 0 || !result.domain) return;
+    if (result.score === 0 || !result.domain || trusted.has(result.domain))
+      return;
     const container = containerOf(el);
     if (result.hide) {
-      hide(container, kind, url, result.score);
+      hide(container, kind, url, result.score, result.reasons);
       flagDomain(result.domain);
       return;
     }
     if (flaggedDomains.has(result.domain)) {
-      hide(container, kind, url, result.score);
+      hide(container, kind, url, result.score, [
+        ...result.reasons,
+        "same-advertiser",
+      ]);
       return;
     }
     const list = pendingByDomain.get(result.domain) ?? [];
     pendingByDomain.set(result.domain, [
       ...list,
-      { el: container, kind, url, score: result.score },
+      { el: container, kind, url, score: result.score, reasons: result.reasons },
     ]);
   };
 
@@ -138,6 +156,7 @@
   };
 
   const scan = () => {
+    if (!trustReady) return; // wait for the trusted list so "not an ad" always wins
     for (const el of document.querySelectorAll(
       `a[href]:not([${HIDDEN_ATTR}]), iframe[src]:not([${HIDDEN_ATTR}])`,
     )) {
@@ -197,7 +216,7 @@
       if (!verdict.block) return;
       event.preventDefault();
       event.stopImmediatePropagation();
-      hide(el, "overlay", anchor?.href ?? "", 0);
+      hide(el, "overlay", anchor?.href ?? "", 0, [verdict.reason]);
     },
     true,
   );
@@ -292,6 +311,18 @@
     if (message?.type === "pick") startPicker();
   });
 
-  // Ask the worker to inject this site's custom (picker) rules.
-  send({ type: "init" });
+  // Ask the worker for the trusted list and to inject this site's picker rules.
+  const finishInit = (list) => {
+    trusted = new Set(Array.isArray(list) ? list : []);
+    trustReady = true;
+    scheduleScan();
+  };
+  try {
+    chrome.runtime
+      .sendMessage({ type: "init", pageHost })
+      .then((reply) => finishInit(reply?.trusted))
+      .catch(() => finishInit([]));
+  } catch {
+    finishInit([]);
+  }
 })();

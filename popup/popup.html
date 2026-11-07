@@ -30,6 +30,15 @@
       </div>
       <div class="stat"><strong id="s-popup">0</strong><span>popup</span></div>
     </section>
+    <p class="breakdown" id="breakdown" hidden></p>
+
+    <section class="log">
+      <h2>Bu sayfada neden engellendi?</h2>
+      <p class="empty" id="log-empty">
+        Bu sekmede sezgisel engelleme olmadı. Ağ engelleri yukarıdaki sayılarda.
+      </p>
+      <ul id="log"></ul>
+    </section>
 
     <section class="actions">
       <button class="btn" id="pick" type="button">Öğe seç ve gizle</button>
@@ -53,6 +62,14 @@
       <ul id="learned"></ul>
     </section>
 
+    <section class="learned" id="trusted-section" hidden>
+      <h2>
+        Reklam değil dediklerin
+        <span class="count" id="trusted-count">0</span>
+      </h2>
+      <ul id="trusted"></ul>
+    </section>
+
     <footer class="foot">
       Toplam engellenen: <strong id="total">0</strong>
     </footer>
@@ -63,6 +80,15 @@
           <span class="why"></span>
         </div>
         <button class="forget" type="button">Unut</button>
+      </li>
+    </template>
+    <template id="log-item">
+      <li>
+        <div class="meta">
+          <span class="domain"></span>
+          <span class="why"></span>
+        </div>
+        <button class="forget" type="button">Reklam değil</button>
       </li>
     </template>
     <script src="popup.js" type="module"></script>

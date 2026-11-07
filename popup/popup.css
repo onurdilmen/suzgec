@@ -152,12 +152,21 @@ body {
   cursor: pointer;
 }
 
-.learned {
+.learned,
+.log {
   border-top: 1px solid var(--line);
   padding: 10px 14px;
 }
 
-.learned h2 {
+.breakdown {
+  margin: 0;
+  padding: 0 14px 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.learned h2,
+.log h2 {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -179,7 +188,9 @@ body {
   color: var(--muted);
 }
 
-#learned {
+#learned,
+#log,
+#trusted {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -187,7 +198,9 @@ body {
   overflow-y: auto;
 }
 
-#learned li {
+#learned li,
+#log li,
+#trusted li {
   display: flex;
   align-items: center;
   justify-content: space-between;
