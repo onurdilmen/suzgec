@@ -297,6 +297,18 @@
     return ALLOW;
   };
 
+  const hasAdToken = (text) => AD_TOKEN.test(String(text ?? ""));
+
+  /**
+   * An ad slot whose filler was blocked: ad-named container with no text and no
+   * visible media left inside. Large containers are never touched (could be layout).
+   */
+  const judgeEmptySlot = ({ context, textLength, visibleMedia, width, height }) => {
+    if (!hasAdToken(context) || textLength > 0 || visibleMedia > 0) return ALLOW;
+    if (height > 400 || width * height > 400 * 1200) return ALLOW;
+    return { block: true, reason: "empty-ad-slot" };
+  };
+
   const isValidSelector = (selector) =>
     typeof selector === "string" &&
     selector.length > 0 &&
@@ -316,5 +328,7 @@
     judgeSyntheticAnchor,
     judgeOverlay,
     isValidSelector,
+    hasAdToken,
+    judgeEmptySlot,
   });
 })();

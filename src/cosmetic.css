@@ -10,11 +10,7 @@ ins.adsbygoogle,
 iframe[src*="googlesyndication.com"],
 iframe[src*="doubleclick.net"],
 div[id^="taboola-"],
-div.OUTBRAIN,
-a[href*="fmhdfc.click"],
-.money-wrapper,
-.money-item,
-.money-text {
+div.OUTBRAIN {
   display: none !important;
 }
 

@@ -22,6 +22,7 @@ const REASON_LABELS = {
   "same-advertiser": "aynı reklamcı",
   "overlay-link": "görünmez tıklama tuzağı",
   "overlay-layer": "görünmez tam ekran katman",
+  "empty-ad-slot": "içi boşalmış reklam alanı",
 };
 const KIND_LABELS = { popup: "Popup engellendi", hidden: "Gizlendi" };
 
@@ -80,7 +81,11 @@ const render = (state) => {
         entry.count > 1 ? `${entry.domain} ×${entry.count}` : entry.domain;
       node.querySelector(".why").textContent = describe(entry);
       const button = node.querySelector(".forget");
-      const canTrust = entry.domain.includes(".") && !entry.domain.startsWith("(");
+      // Popup reports can be forged by the page: no trust action for them.
+      const canTrust =
+        entry.kind === "hidden" &&
+        entry.domain.includes(".") &&
+        !entry.domain.startsWith("(");
       button.hidden = !canTrust;
       button.addEventListener("click", async () => {
         await call("popup:trust", { domain: entry.domain });
@@ -97,7 +102,7 @@ const render = (state) => {
     ...state.trusted.map((domain) => {
       const node = template.content.firstElementChild.cloneNode(true);
       node.querySelector(".domain").textContent = domain;
-      node.querySelector(".why").textContent = "hiç engellenmez";
+      node.querySelector(".why").textContent = "bu sitede engellenmez";
       const button = node.querySelector(".forget");
       button.textContent = "Kaldır";
       button.addEventListener("click", async () => {

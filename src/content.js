@@ -169,6 +169,35 @@
     }
   };
 
+  // Ad containers left empty because their filler script was blocked at network level.
+  const SLOT_CANDIDATES = "div,aside,section,ins,figure";
+  const collapseEmptySlots = () => {
+    for (const el of document.body?.querySelectorAll(SLOT_CANDIDATES) ?? []) {
+      if (el.hasAttribute(HIDDEN_ATTR) || el.closest(`[${HIDDEN_ATTR}]`)) continue;
+      const own = tokensOf(el);
+      if (!H.hasAdToken(own)) continue;
+      const rect = el.getBoundingClientRect();
+      if (rect.width === 0 && rect.height === 0) continue;
+      const visibleMedia = [...el.querySelectorAll(MEDIA)].filter((m) => {
+        const r = m.getBoundingClientRect();
+        return r.width > 2 && r.height > 2;
+      }).length;
+      const verdict = H.judgeEmptySlot({
+        context: own,
+        textLength: (el.innerText ?? "").trim().length, // ignores already-hidden children
+        visibleMedia,
+        width: rect.width,
+        height: rect.height,
+      });
+      if (verdict.block) {
+        el.setAttribute(HIDDEN_ATTR, "empty-slot");
+        send({ type: "blocked", kind: "hidden", url: "", reasons: [verdict.reason] });
+      }
+    }
+  };
+  // Give legitimate lazy content time to arrive before calling a slot empty.
+  window.addEventListener("load", () => window.setTimeout(collapseEmptySlots, 2000), { once: true });
+
   let scanTimer = 0;
   const scheduleScan = () => {
     if (scanTimer) return;

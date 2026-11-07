@@ -24,6 +24,8 @@ const pages = {
       <a id="ad1" href="http://ads-network.test/click/1"><img src="http://ads-network.test/banner.png" width="728" height="90"></a>
     </div></div>
     <a id="bar" href="http://ads-network.test/click/2" class="cta-strip">Çevrimsiz deneme bonusu burada</a>
+    <div class="money-wrapper" id="slot"><div class="money-item" style="height:90px;width:728px"></div></div>
+    <div class="content-box" id="layout" style="height:90px;width:728px"></div>
     <p>Kaynak: <a id="normal" href="http://example-news.test/article">haber</a></p>
     <div id="play" style="width:640px;height:360px;background:#333">PLAY</div>
     <script>
@@ -89,6 +91,11 @@ try {
   });
   await check('betting text bar hidden', async () => {
     assert.equal(await page.locator('#bar').isVisible(), false);
+  });
+  await check('empty ad slot collapsed, empty layout box kept', async () => {
+    await page.waitForTimeout(2500);
+    assert.equal(await page.locator('#slot').getAttribute('data-suzgec-hidden'), 'empty-slot');
+    assert.equal(await page.locator('#layout').getAttribute('data-suzgec-hidden'), null);
   });
   await check('ordinary outbound link stays visible', async () => {
     assert.equal(await page.locator('#normal').isVisible(), true);
@@ -156,7 +163,11 @@ try {
     const popup = await context.newPage();
     const extId = new URL(worker.url()).host;
     await popup.goto(`chrome-extension://${extId}/popup/popup.html`);
-    await popup.evaluate(() => chrome.runtime.sendMessage({ type: 'popup:trust', domain: 'ads-network.test' }));
+    const tabId = await worker.evaluate(async () => (await chrome.tabs.query({ url: 'http://site.test/*' }))[0].id);
+    const forged = await popup.evaluate((id) => chrome.runtime.sendMessage({ type: 'popup:trust', tabId: id, host: 'site.test', domain: 'popunder.test' }), tabId);
+    assert.equal(forged.ok, false, 'popup-only domain must not be trustable');
+    const ok = await popup.evaluate((id) => chrome.runtime.sendMessage({ type: 'popup:trust', tabId: id, host: 'site.test', domain: 'ads-network.test' }), tabId);
+    assert.equal(ok.ok, true);
     await popup.close();
     hits.length = 0;
     await page.reload();
@@ -165,6 +176,8 @@ try {
     assert.ok(hits.includes('ads-network.test/banner.png'), hits.join(', '));
     const rules = await worker.evaluate(() => chrome.declarativeNetRequest.getDynamicRules());
     assert.ok(!rules.some((r) => r.action.type === 'block' && (r.condition.requestDomains ?? []).includes('ads-network.test')));
+    const allow = rules.find((r) => r.action.type === 'allow');
+    assert.deepEqual(allow.condition.initiatorDomains, ['site.test'], 'trust must be scoped to the site');
     await worker.evaluate(async () => {
       const { state } = await chrome.storage.local.get('state');
       await chrome.storage.local.set({ state: { ...state, trusted: [] } });

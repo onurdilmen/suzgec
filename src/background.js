@@ -7,7 +7,7 @@ const H = globalThis.SuzgecHeuristics;
 
 const STATE_KEY = "state";
 const LEARNED_RULE_ID = 100000;
-const TRUSTED_RULE_ID = 100001;
+const TRUSTED_RULE_BASE = 200000; // one allow rule per site
 const MAX_LOG = 40;
 // A page controls its own DOM and can fake ad signals, so no single site may create a
 // global rule: a domain is learned only after independent sites report it.
@@ -41,7 +41,7 @@ const DEFAULT_STATE = Object.freeze({
   candidates: {}, // domain -> { hits, from }
   custom: {}, // registrable domain -> [selectors]
   trackers: true,
-  trusted: [], // domains the user marked "not an ad": never hidden, learned or blocked
+  trusted: [], // [{ domain, site }]: user said "not an ad" for `domain` while on `site`
   contrib: {}, // site -> number of domains it has ever reported (persistent cap)
   total: 0,
 });
@@ -64,6 +64,11 @@ const updateState = (mutate) => {
   queue = run.catch(() => {});
   return run;
 };
+
+const trustedEntries = (state) =>
+  (state.trusted ?? []).filter(
+    (t) => t && typeof t.domain === "string" && typeof t.site === "string",
+  );
 
 // ---- DNR + content scripts -----------------------------------------------
 const applyDynamicRules = async (state) => {
@@ -91,17 +96,22 @@ const applyDynamicRules = async (state) => {
         },
       ]
     : [];
-  const trusted = state.trusted ?? [];
-  const trustedRules = trusted.length
-    ? [
-        {
-          id: TRUSTED_RULE_ID,
-          priority: 50, // beats the static and learned block rules
-          action: { type: "allow" },
-          condition: { requestDomains: trusted, resourceTypes: ALL_TYPES },
-        },
-      ]
-    : [];
+  // Trust is scoped to the site where it was granted (initiatorDomains), so one
+  // "not an ad" click can never unblock a domain everywhere.
+  const bySite = trustedEntries(state).reduce(
+    (acc, { domain, site }) => ({ ...acc, [site]: [...(acc[site] ?? []), domain] }),
+    {},
+  );
+  const trustedRules = Object.entries(bySite).map(([site, domains], index) => ({
+    id: TRUSTED_RULE_BASE + index,
+    priority: 50, // beats the static and learned block rules
+    action: { type: "allow" },
+    condition: {
+      requestDomains: domains,
+      initiatorDomains: [site],
+      resourceTypes: ALL_TYPES,
+    },
+  }));
   await chrome.declarativeNetRequest.updateDynamicRules({
     removeRuleIds: existing.map((rule) => rule.id),
     addRules: [...pauseRules, ...learnedRules, ...trustedRules],
@@ -179,13 +189,17 @@ const updateTab = (tabId, mutate) => {
 
 const REASONS = new Set([
   "cross-site", "ad-size", "media", "gambling", "ad-context", "same-advertiser",
-  "overlay-link", "overlay-layer",
+  "overlay-link", "overlay-layer", "empty-ad-slot",
 ]);
 
 const recordBlock = (tabId, { kind, url, reasons }) =>
   updateTab(tabId, (tab) => {
     const host = hostOf(url);
-    const domain = host ? H.learnKey(host) : kind === "popup" ? "(boş popup)" : "?";
+    const domain = host
+      ? H.learnKey(host)
+      : kind === "popup"
+        ? "(boş popup)"
+        : "(boş reklam alanı)";
     const clean = (Array.isArray(reasons) ? reasons : [])
       .map(String)
       .filter((r) => REASONS.has(r));
@@ -224,7 +238,7 @@ const learnFrom = ({ url, score, kind, pageHost }) =>
     const domain = H.learnKey(host);
     if (
       state.learned[domain] ||
-      (state.trusted ?? []).includes(domain) ||
+      trustedEntries(state).some((t) => t.domain === domain) ||
       Object.keys(state.learned).length >= MAX_LEARNED
     )
       return state;
@@ -301,7 +315,12 @@ const fromContent = async (message, sender) => {
       const selectors = state.custom[site] ?? [];
       if (tabId != null)
         await injectCustom(tabId, sender.frameId ?? 0, selectors);
-      return { ok: true, trusted: state.trusted ?? [] };
+      return {
+        ok: true,
+        trusted: trustedEntries(state)
+          .filter((t) => t.site === H.registrableDomain(hostOf(sender.tab?.url ?? "")))
+          .map((t) => t.domain),
+      };
     }
     case "blocked": {
       const kind = message.kind === "popup" ? "popup" : "hidden";
@@ -383,7 +402,9 @@ const fromPopup = async (message) => {
           .map(([domain, info]) => ({ domain, ...info }))
           .sort((a, b) => b.at - a.at),
         customCount: (state.custom[site] ?? []).length,
-        trusted: state.trusted ?? [],
+        trusted: trustedEntries(state)
+          .filter((t) => t.site === site)
+          .map((t) => t.domain),
       };
     }
     case "popup:togglePause": {
@@ -399,15 +420,26 @@ const fromPopup = async (message) => {
     }
     case "popup:trust":
     case "popup:untrust": {
-      const domain = H.learnKey(String(message.domain ?? "").toLowerCase());
-      if (!/^[a-z0-9.-]+\.[a-z0-9-]+$/.test(domain)) return { ok: false };
+      const domain = String(message.domain ?? "").toLowerCase();
+      if (!site || !/^[a-z0-9.-]+\.[a-z0-9-]+$/.test(domain)) return { ok: false };
       const trust = message.type === "popup:trust";
+      if (trust) {
+        // Only domains this tab really hid (not page-forgeable popup reports) can be trusted.
+        const key = tabKey(message.tabId);
+        const { [key]: tab = EMPTY_TAB } = await chrome.storage.session.get(key);
+        const seen = (tab.log ?? []).some(
+          (e) => e.domain === domain && e.kind === "hidden",
+        );
+        if (!seen) return { ok: false, error: "NOT_IN_TAB_LOG" };
+      }
       const state = await updateState((s) => {
-        const list = (s.trusted ?? []).filter((d) => d !== domain);
+        const list = trustedEntries(s).filter(
+          (t) => !(t.domain === domain && t.site === site),
+        );
         if (!trust) return { ...s, trusted: list };
         const { [domain]: _l, ...learned } = s.learned;
         const { [domain]: _c, ...candidates } = s.candidates;
-        return { ...s, learned, candidates, trusted: [...list, domain] };
+        return { ...s, learned, candidates, trusted: [...list, { domain, site }] };
       });
       await applyDynamicRules(state);
       return { ok: true };

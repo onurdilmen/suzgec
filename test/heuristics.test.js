@@ -230,6 +230,13 @@ test("non-http popups fail closed unless opened from a real button", () => {
   assert.equal(H.judgePopup({ url: "blob:https://www.hdfilmcehennemi.nl/x", pageUrl: PAGE, gesture: { ...g, interactive: true }, now: 1100 }).block, false);
 });
 
+test("empty ad slot is collapsed; empty layout box or filled slot is not", () => {
+  assert.equal(H.judgeEmptySlot({ context: "money-item money-wrapper", textLength: 0, visibleMedia: 0, width: 728, height: 90 }).block, true);
+  assert.equal(H.judgeEmptySlot({ context: "content-wrapper", textLength: 0, visibleMedia: 0, width: 728, height: 90 }).block, false);
+  assert.equal(H.judgeEmptySlot({ context: "ad-box", textLength: 0, visibleMedia: 1, width: 300, height: 250 }).block, false);
+  assert.equal(H.judgeEmptySlot({ context: "banner-hero", textLength: 0, visibleMedia: 0, width: 1400, height: 700 }).block, false);
+});
+
 test("MAIN-world copy of heuristics is in sync (run npm run build)", () => {
   const main = readFileSync(new URL("../src/heuristics.main.js", import.meta.url), "utf8");
   assert.equal(main, source);
