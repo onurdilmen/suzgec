@@ -48,11 +48,12 @@ const render = (state) => {
   $("breakdown").hidden = !net || net.total === 0;
   if (net)
     $("breakdown").textContent =
-      `Reklam listesi ${net.ads} · İzleyici ${net.trackers} · Öğrenilen ${net.learned}`;
+      `Reklam ${net.ads} · İzleyici ${net.trackers} · Çerez ${net.cookies} · Öğrenilen ${net.learned}`;
   $("s-hidden").textContent = state.tab.hidden;
   $("s-popup").textContent = state.tab.popup;
   $("trackers").checked = state.trackers;
   $("lists").checked = state.lists;
+  $("cookies").checked = state.cookies;
   $("total").textContent = state.total.toLocaleString("tr-TR");
   $("pick").disabled = !host || state.paused;
   $("clear-custom").hidden = state.customCount === 0;
@@ -124,6 +125,12 @@ $("pause").addEventListener("click", async () => {
   if (tab?.id != null) chrome.tabs.reload(tab.id);
 });
 
+$("cookies").addEventListener("change", async () => {
+  await call("popup:toggleCookies");
+  await refresh();
+  if (tab?.id != null) chrome.tabs.reload(tab.id);
+});
+
 $("lists").addEventListener("change", async () => {
   await call("popup:toggleLists");
   await refresh();
@@ -134,7 +141,8 @@ const showListsMeta = async () => {
   try {
     const meta = await fetch("../filters/meta.json").then((r) => r.json());
     const date = new Date(meta.builtAt).toLocaleDateString("tr-TR");
-    $("lists-meta").textContent = `Listeler: ${meta.sources.map((s) => s.title).join(" + ")} · ${date}`;
+    $("lists-meta").textContent = `${meta.sources.length} filtre listesi · ${date}`;
+    $("lists-meta").title = meta.sources.map((s) => s.title).join(", ");
   } catch {
     $("lists-meta").textContent = "";
   }
@@ -144,6 +152,7 @@ showListsMeta();
 $("trackers").addEventListener("change", async () => {
   await call("popup:toggleTrackers");
   await refresh();
+  if (tab?.id != null) chrome.tabs.reload(tab.id);
 });
 
 $("pick").addEventListener("click", async () => {

@@ -2,7 +2,7 @@
  * Süzgeç service worker: state, learning, dynamic DNR rules, content-script registration.
  */
 import "./heuristics.js";
-import { createPopupMatcher, cssFor, isGenericHideHost, selectorsForHost } from "./filter-match.js";
+import { createPopupMatcher, cssFor, injectionsForHost, selectorsForHost } from "./filter-match.js";
 
 const H = globalThis.SuzgecHeuristics;
 
@@ -34,7 +34,10 @@ const SUBRESOURCE_TYPES = [
   "other",
 ];
 ALL_TYPES.push(...SUBRESOURCE_TYPES);
-const SCRIPT_IDS = ["suzgec-main", "suzgec-isolated", "suzgec-generic"];
+const LIST_GROUPS = ["filters", "privacy", "annoyances"];
+// List rules reach priority ~1e6 ($important); user decisions must always win.
+const PAUSE_PRIORITY = 2_000_000_000;
+const TRUSTED_PRIORITY = 1_900_000_000;
 
 const DEFAULT_STATE = Object.freeze({
   paused: [], // registrable domains where protection is off
@@ -42,7 +45,8 @@ const DEFAULT_STATE = Object.freeze({
   candidates: {}, // domain -> { hits, from }
   custom: {}, // registrable domain -> [selectors]
   trackers: true,
-  lists: true, // EasyList + AdGuard Turkish (network, cosmetic, popup)
+  lists: true, // "filters" group: EasyList, AdGuard Turkish, uBlock filters (+ popup, scriptlets)
+  cookies: true, // "annoyances" group: cookie banners
   trusted: [], // [{ domain, site }]: user said "not an ad" for `domain` while on `site`
   contrib: {}, // site -> number of domains it has ever reported (persistent cap)
   total: 0,
@@ -77,7 +81,7 @@ const applyDynamicRules = async (state) => {
   const existing = await chrome.declarativeNetRequest.getDynamicRules();
   const pauseRules = state.paused.map((domain, index) => ({
     id: index + 1,
-    priority: 100,
+    priority: PAUSE_PRIORITY,
     action: { type: "allowAllRequests" },
     condition: {
       requestDomains: [domain],
@@ -106,7 +110,7 @@ const applyDynamicRules = async (state) => {
   );
   const trustedRules = Object.entries(bySite).map(([site, domains], index) => ({
     id: TRUSTED_RULE_BASE + index,
-    priority: 50, // beats the static and learned block rules
+    priority: TRUSTED_PRIORITY, // beats every list and learned block rule
     action: { type: "allow" },
     condition: {
       requestDomains: domains,
@@ -120,13 +124,20 @@ const applyDynamicRules = async (state) => {
   });
 };
 
+// Which list groups the user has switched on (privacy rides on the tracker switch).
+const enabledGroups = (state) =>
+  new Set([
+    ...(state.lists !== false ? ["filters"] : []),
+    ...(state.trackers ? ["privacy"] : []),
+    ...(state.cookies !== false ? ["annoyances"] : []),
+  ]);
+
 const applyRulesets = (state) => {
-  const on = (flag, id) => (flag ? [id] : []);
-  const off = (flag, id) => (flag ? [] : [id]);
-  const lists = state.lists !== false;
+  const groups = enabledGroups(state);
+  const wanted = { trackers: Boolean(state.trackers), ...Object.fromEntries(LIST_GROUPS.map((g) => [g, groups.has(g)])) };
   return chrome.declarativeNetRequest.updateEnabledRulesets({
-    enableRulesetIds: [...on(state.trackers, "trackers"), ...on(lists, "filters")],
-    disableRulesetIds: [...off(state.trackers, "trackers"), ...off(lists, "filters")],
+    enableRulesetIds: Object.keys(wanted).filter((id) => wanted[id]),
+    disableRulesetIds: Object.keys(wanted).filter((id) => !wanted[id]),
   });
 };
 
@@ -134,11 +145,13 @@ const applyRulesets = (state) => {
 const loadJson = (file) => fetch(chrome.runtime.getURL(file)).then((r) => r.json());
 let cosmeticPromise = null;
 const getCosmetic = () =>
-  (cosmeticPromise ??= loadJson("src/generated/cosmetic.json").catch(() => ({
-    specific: {},
-    scoped: [],
-    generichide: [],
-  })));
+  (cosmeticPromise ??= loadJson("src/generated/cosmetic.json").catch(() => ({ groups: {} })));
+let scriptletRegistryPromise = null;
+const getScriptletRegistry = () =>
+  (scriptletRegistryPromise ??= loadJson("src/generated/scriptlets.json").catch(() => []));
+let injectPromise = null;
+const getInject = () =>
+  (injectPromise ??= loadJson("src/generated/inject.json").catch(() => ({})));
 let popupMatcherPromise = null;
 const getPopupMatcher = () =>
   (popupMatcherPromise ??= loadJson("src/generated/popup.json")
@@ -158,31 +171,40 @@ const syncContentScripts = async (state) => {
     matchOriginAsFallback: true,
     persistAcrossSessions: true,
   };
-  const registered = await chrome.scripting.getRegisteredContentScripts({
-    ids: SCRIPT_IDS,
-  });
+  const registered = await chrome.scripting.getRegisteredContentScripts();
   if (registered.length)
     await chrome.scripting.unregisterContentScripts({
       ids: registered.map((s) => s.id),
     });
-  // Generic list CSS is skipped on paused sites and on $generichide sites.
+  // Generic list CSS per enabled group, skipped on paused and $generichide sites.
   const cosmetic = await getCosmetic();
-  const genericExclude = [
-    ...excludeMatches,
-    ...cosmetic.generichide.flatMap((d) => [`*://${d}/*`, `*://*.${d}/*`]),
-  ];
-  const lists = state.lists !== false;
+  const groups = enabledGroups(state);
+  const genericScripts = LIST_GROUPS.filter((g) => groups.has(g)).map((group) => {
+    const exclude = [
+      ...excludeMatches,
+      ...(cosmetic.groups?.[group]?.generichide ?? []).flatMap((d) => [`*://${d}/*`, `*://*.${d}/*`]),
+    ];
+    return {
+      ...common,
+      ...(exclude.length ? { excludeMatches: exclude } : {}),
+      id: `suzgec-generic-${group}`,
+      css: [`src/generated/generic-${group}.css`],
+    };
+  });
+  // Scriptlets: one MAIN-world script per (group, scriptlet), only on its hosts,
+  // at document_start so it runs before the page's own code.
+  const scriptletScripts = (await getScriptletRegistry())
+    .filter((entry) => groups.has(entry.group) && entry.matches.length)
+    .map((entry) => ({
+      ...common,
+      id: entry.id,
+      world: "MAIN",
+      matches: entry.matches,
+      js: [entry.file],
+    }));
   await chrome.scripting.registerContentScripts([
-    ...(lists
-      ? [
-          {
-            ...common,
-            ...(genericExclude.length ? { excludeMatches: genericExclude } : {}),
-            id: "suzgec-generic",
-            css: ["src/generated/generic-hide.css"],
-          },
-        ]
-      : []),
+    ...genericScripts,
+    ...scriptletScripts,
     {
       ...common,
       id: "suzgec-main",
@@ -345,10 +367,10 @@ const fromContent = async (message, sender) => {
     case "init": {
       const state = await loadState();
       const frameHost = hostOf(sender.url ?? "") || pageHost;
-      const listSelectors =
-        state.lists !== false
-          ? selectorsForHost(frameHost, await getCosmetic())
-          : [];
+      const cosmetic = await getCosmetic();
+      const listSelectors = [...enabledGroups(state)].flatMap((g) =>
+        selectorsForHost(frameHost, cosmetic.groups?.[g]),
+      );
       const selectors = [
         ...listSelectors,
         ...(state.custom[H.registrableDomain(frameHost)] ?? []),
@@ -420,10 +442,12 @@ const fromPopup = async (message) => {
           rulesMatchedInfo.reduce(
             (acc, { rule }) => {
               const bucket =
-                rule.rulesetId === "ads" || rule.rulesetId === "filters"
+                rule.rulesetId === "filters"
                   ? "ads"
-                  : rule.rulesetId === "trackers"
+                  : rule.rulesetId === "trackers" || rule.rulesetId === "privacy"
                     ? "trackers"
+                    : rule.rulesetId === "annoyances"
+                      ? "cookies"
                     : rule.ruleId === LEARNED_RULE_ID
                       ? "learned"
                       : null;
@@ -431,7 +455,7 @@ const fromPopup = async (message) => {
                 ? { ...acc, total: acc.total + 1, [bucket]: acc[bucket] + 1 }
                 : acc;
             },
-            { total: 0, ads: 0, trackers: 0, learned: 0 },
+            { total: 0, ads: 0, trackers: 0, cookies: 0, learned: 0 },
           ),
         )
         .catch(() => null);
@@ -440,6 +464,7 @@ const fromPopup = async (message) => {
         paused: state.paused.includes(site),
         trackers: state.trackers,
         lists: state.lists !== false,
+        cookies: state.cookies !== false,
         total: state.total,
         tab: { ...tab, network },
         learned: Object.entries(state.learned)
@@ -493,9 +518,14 @@ const fromPopup = async (message) => {
       await applyAll(state);
       return { ok: true };
     }
+    case "popup:toggleCookies": {
+      const state = await updateState((s) => ({ ...s, cookies: s.cookies === false }));
+      await applyAll(state);
+      return { ok: true };
+    }
     case "popup:toggleTrackers": {
       const state = await updateState((s) => ({ ...s, trackers: !s.trackers }));
-      await applyRulesets(state);
+      await applyAll(state);
       return { ok: true };
     }
     case "popup:forget": {
@@ -567,6 +597,42 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
 chrome.tabs.onRemoved.addListener((tabId) =>
   chrome.storage.session.remove(tabKey(tabId)),
 );
+
+// ---- extended CSS (uBlock/AdGuard procedural cosmetics) ----------------------
+// Scriptlets are registered content scripts (see syncContentScripts); ExtendedCss is
+// injected per frame on commit, in the isolated world.
+const pausedFor = async (tabId, state) => {
+  const tab = await chrome.tabs.get(tabId).catch(() => null);
+  const site = H.registrableDomain(hostOf(tab?.url ?? ""));
+  return !site || state.paused.includes(site);
+};
+
+const injectAdvanced = async ({ tabId, frameId, url }) => {
+  const host = hostOf(url);
+  if (!host || tabId < 0) return;
+  const state = await loadState();
+  const { css } = injectionsForHost(host, await getInject(), enabledGroups(state));
+  if (!css.length || (await pausedFor(tabId, state))) return;
+  const target = { tabId, frameIds: [frameId] };
+  await chrome.scripting.executeScript({ target, injectImmediately: true, files: ["src/vendor/extended-css.js"] });
+  await chrome.scripting.executeScript({
+    target,
+    injectImmediately: true,
+    func: (rules) => {
+      // globalThis.ExtendedCss comes from the vendor file injected just before.
+      const ExtCss = globalThis.ExtendedCss;
+      if (!ExtCss || globalThis.__suzgecExtCss) return;
+      globalThis.__suzgecExtCss = new ExtCss({ cssRules: rules });
+      globalThis.__suzgecExtCss.apply();
+    },
+    args: [css],
+  });
+};
+
+chrome.webNavigation.onCommitted.addListener((details) => {
+  if (!/^https?:/.test(details.url)) return;
+  injectAdvanced(details).catch(() => {});
+});
 
 // ---- list-based popup/popunder blocking ------------------------------------
 // A new tab opened by a page is watched for a few seconds (popunders often open

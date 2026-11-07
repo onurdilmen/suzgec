@@ -2,20 +2,46 @@
   "manifest_version": 3,
   "name": "Süzgeç — Akıllı Reklam Engelleyici",
   "short_name": "Süzgeç",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Reklamları, popunder'ları ve görünmez tıklama tuzaklarını engeller; yeni reklam alan adlarını kendiliğinden öğrenir.",
   "minimum_chrome_version": "118",
-  "permissions": ["declarativeNetRequest", "storage", "scripting", "activeTab", "webNavigation"],
-  "host_permissions": ["http://*/*", "https://*/*"],
+  "permissions": [
+    "declarativeNetRequest",
+    "storage",
+    "scripting",
+    "activeTab",
+    "webNavigation"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
   "background": {
-    "service_worker": "src/background.js",
+    "service_worker": "build/background.js",
     "type": "module"
   },
   "declarative_net_request": {
     "rule_resources": [
-      { "id": "ads", "enabled": true, "path": "rules/ads.json" },
-      { "id": "trackers", "enabled": true, "path": "rules/trackers.json" },
-      { "id": "filters", "enabled": true, "path": "rules/filters.json" }
+      {
+        "id": "filters",
+        "enabled": true,
+        "path": "rules/filters.json"
+      },
+      {
+        "id": "privacy",
+        "enabled": true,
+        "path": "rules/privacy.json"
+      },
+      {
+        "id": "annoyances",
+        "enabled": true,
+        "path": "rules/annoyances.json"
+      },
+      {
+        "id": "trackers",
+        "enabled": true,
+        "path": "rules/trackers.json"
+      }
     ]
   },
   "action": {
@@ -33,5 +59,15 @@
     "32": "icons/32.png",
     "48": "icons/48.png",
     "128": "icons/128.png"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "redirects/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
 }

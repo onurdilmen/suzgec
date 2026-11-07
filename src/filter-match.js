@@ -126,3 +126,45 @@ export const createPopupMatcher = (data, registrableDomain) => {
     return null;
   };
 };
+
+/**
+ * Scriptlets and extended-CSS rules that apply to a document on `host`.
+ * Honors `#@%#` / `#@?#` exceptions: an empty scriptlet exception disables all scriptlets.
+ * @param {string} host
+ * @param {{scriptlets:{entries:Array,byDomain:Object,generic:number[]}, extcss:{entries:Array,byDomain:Object,generic:number[]}}} data
+ * @param {Set<string>} groups enabled groups
+ */
+export const injectionsForHost = (host, data, groups) => {
+  const chain = hostChain(host);
+  const pick = (table) => {
+    if (!table) return [];
+    const indexes = new Set(table.generic ?? []);
+    for (const domain of chain) for (const i of table.byDomain?.[domain] ?? []) indexes.add(i);
+    return [...indexes]
+      .map((i) => table.entries[i])
+      .filter((e) => e && groups.has(e.group) && !inDomainList(host, e.exclude));
+  };
+
+  const scriptletRules = pick(data?.scriptlets);
+  const keyOf = (e) => `${e.name}|${e.args.join('|')}`;
+  const exceptions = scriptletRules.filter((e) => e.exception);
+  const blockedAll = exceptions.some((e) => !e.name);
+  // `#@%#//scriptlet('name')` disables every use of `name`; with args only that exact call.
+  const nameOnly = new Set(exceptions.filter((e) => e.name && !e.args.length).map((e) => e.name));
+  const exact = new Set(exceptions.filter((e) => e.args.length).map(keyOf));
+  const seen = new Set();
+  const scriptlets = blockedAll
+    ? []
+    : scriptletRules.filter((e) => {
+        const key = keyOf(e);
+        if (e.exception || nameOnly.has(e.name) || exact.has(key) || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+
+  const cssRules = pick(data?.extcss);
+  const cssExceptions = new Set(cssRules.filter((e) => e.exception).map((e) => e.css));
+  const css = [...new Set(cssRules.filter((e) => !e.exception && !cssExceptions.has(e.css)).map((e) => e.css))];
+
+  return { scriptlets: scriptlets.map(({ name, args }) => ({ name, args })), css };
+};
