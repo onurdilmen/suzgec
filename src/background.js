@@ -7,11 +7,16 @@ const H = globalThis.SuzgecHeuristics;
 
 const STATE_KEY = "state";
 const LEARNED_RULE_ID = 100000;
-const LEARN_AFTER_HITS = 3; // weak signals (hidden but score < LEARN_SCORE, blocked popups)
+// A page controls its own DOM and can fake ad signals, so no single site may create a
+// global rule: a domain is learned only after independent sites report it.
+const STRONG_SITES = 2; // distinct sites with score >= LEARN_SCORE
+const WEAK_SITES = 4; // distinct sites with a hide-level score
+const MAX_CANDIDATES = 1000;
+const MAX_CONTRIB_PER_SITE = 50; // a single site cannot flood the candidate list
 const MAX_LEARNED = 2000;
 const MAX_CUSTOM_PER_SITE = 200;
-const ALL_RESOURCE_TYPES = [
-  "main_frame",
+// Learned rules never include main_frame: a learned domain can't stop the user from visiting it.
+const SUBRESOURCE_TYPES = [
   "sub_frame",
   "stylesheet",
   "script",
@@ -75,7 +80,7 @@ const applyDynamicRules = async (state) => {
           action: { type: "block" },
           condition: {
             requestDomains: learnedDomains,
-            resourceTypes: ALL_RESOURCE_TYPES,
+            resourceTypes: SUBRESOURCE_TYPES,
           },
         },
       ]
@@ -162,8 +167,11 @@ const hostOf = (url) => {
 
 const learnFrom = ({ url, score, kind, pageHost }) =>
   updateState((state) => {
+    // Popup reports travel over window.postMessage, which the page can spoof: stats only.
+    if (kind === "popup") return state;
     const host = hostOf(url);
-    if (!host || H.isSafeHost(host) || H.isSameSite(host, pageHost))
+    const from = H.registrableDomain(pageHost);
+    if (!host || !from || H.isSafeHost(host) || H.isSameSite(host, pageHost))
       return state;
     const domain = H.learnKey(host);
     if (
@@ -172,12 +180,25 @@ const learnFrom = ({ url, score, kind, pageHost }) =>
     )
       return state;
 
-    const strong = kind !== "popup" && score >= H.LEARN_SCORE;
-    const previous = state.candidates[domain]?.hits ?? 0;
-    const hits = previous + 1;
-    const from = H.registrableDomain(pageHost);
+    const strong = score >= H.LEARN_SCORE;
+    const raw = state.candidates[domain];
+    const entry = Array.isArray(raw?.strong) && Array.isArray(raw?.weak)
+      ? raw
+      : { strong: [], weak: [] };
+    const bucket = strong ? "strong" : "weak";
+    if (entry[bucket].includes(from)) return state;
 
-    if (strong || hits >= LEARN_AFTER_HITS) {
+    const contributions = Object.values(state.candidates).filter(
+      (c) => c.strong?.includes(from) || c.weak?.includes(from),
+    ).length;
+    if (contributions >= MAX_CONTRIB_PER_SITE) return state;
+
+    const next = { ...entry, [bucket]: [...entry[bucket], from] };
+    const sites = new Set([...next.strong, ...next.weak]);
+    const learned =
+      next.strong.length >= STRONG_SITES || sites.size >= WEAK_SITES;
+
+    if (learned) {
       const { [domain]: _dropped, ...candidates } = state.candidates;
       return {
         ...state,
@@ -186,15 +207,20 @@ const learnFrom = ({ url, score, kind, pageHost }) =>
           ...state.learned,
           [domain]: {
             at: Date.now(),
-            from,
-            reason: strong ? `skor ${score}` : `${hits} tekrar`,
+            from: [...sites].slice(0, 3).join(", "),
+            reason: `${sites.size} sitede reklam`,
           },
         },
       };
     }
+    if (
+      !state.candidates[domain] &&
+      Object.keys(state.candidates).length >= MAX_CANDIDATES
+    )
+      return state;
     return {
       ...state,
-      candidates: { ...state.candidates, [domain]: { hits, from } },
+      candidates: { ...state.candidates, [domain]: next },
     };
   });
 

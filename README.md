@@ -3,7 +3,7 @@
 Katmanlar:
 
 1. **Ağ engeli (DNR):** `rules/ads.json` (bilinen reklam ağları + site-özel), `rules/trackers.json` (açılıp kapatılabilir).
-2. **Sezgisel gizleme:** Dış siteye giden link/iframe'leri puanlar (IAB reklam boyutu, medya, bahis kelimeleri, `ad/banner/money/promo` sınıfları). Eşik ≥6 gizler, ≥8 alan adını **öğrenir** ve dinamik DNR kuralına ekler. Aynı sayfada reklam olduğu kanıtlanan alan adına giden zayıf linkler de gizlenir.
+2. **Sezgisel gizleme:** Dış siteye giden link/iframe'leri puanlar (IAB reklam boyutu, medya, bahis kelimeleri, `ad/banner/money/promo` sınıfları). Eşik ≥6 gizler. Bir alan adı ancak **birbirinden bağımsız siteler** raporladığında öğrenilir (≥8 puanla 2 site ya da gizleme puanıyla 4 site) ve yalnızca alt kaynaklar (script, görsel, iframe…) için engellenir; tek bir site global kural oluşturamaz, popup raporları öğrenmeye katılmaz. Aynı sayfada reklam olduğu kanıtlanan alan adına giden zayıf linkler de gizlenir.
 3. **Popup/popunder koruması (MAIN world):** `window.open`, sentetik `a.click()` ve `dispatchEvent(click)` kullanıcı hareketine göre değerlendirilir.
 4. **Tıklama tuzağı koruması:** Sayfayı kaplayan görünmez katmanlara yapılan ilk tıklama yutulur ve katman kaldırılır.
 5. **Öğe seçici:** Popup → "Öğe seç ve gizle"; seçiciler site bazında saklanır.

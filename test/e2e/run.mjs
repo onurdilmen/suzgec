@@ -39,7 +39,7 @@ const pages = {
 const server = createServer((req, res) => {
   const host = (req.headers.host ?? '').split(':')[0];
   hits.push(`${host}${req.url}`);
-  if (host === 'site.test' && pages[req.url]) {
+  if ((host === 'site.test' || host === 'another.test') && pages[req.url]) {
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
     res.end(pages[req.url]);
     return;
@@ -102,7 +102,18 @@ try {
     assert.equal(hits.some((h) => h.startsWith('popunder.test')), false);
   });
 
-  await check('ad domain learned into dynamic DNR rule', async () => {
+  await check('one site alone cannot create a global rule', async () => {
+    await page.waitForTimeout(800);
+    const rules = await worker.evaluate(() => chrome.declarativeNetRequest.getDynamicRules());
+    assert.equal(rules.flatMap((r) => r.condition.requestDomains ?? []).includes('ads-network.test'), false);
+  });
+
+  const second = await context.newPage();
+  await second.goto('http://another.test/');
+  await second.waitForTimeout(1200);
+  await second.close();
+
+  await check('ad domain learned after a second independent site', async () => {
     await page.waitForTimeout(1000);
     const rules = await worker.evaluate(() => chrome.declarativeNetRequest.getDynamicRules());
     const domains = rules.flatMap((r) => r.condition.requestDomains ?? []);
@@ -113,7 +124,7 @@ try {
   await page.reload();
   await page.waitForTimeout(1000);
   await check('learned domain blocked at network level on reload', async () => {
-    assert.equal(hits.some((h) => h.startsWith('ads-network.test')), false, hits.join(', '));
+    assert.equal(hits.some((h) => h === 'ads-network.test/banner.png'), false, hits.join(', '));
   });
 
   const overlay = await context.newPage();
