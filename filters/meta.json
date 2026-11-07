@@ -1,0 +1,40 @@
+{
+  "builtAt": "2026-11-07T04:34:47.694Z",
+  "sources": [
+    {
+      "id": "easylist",
+      "title": "EasyList",
+      "url": "https://easylist.to/easylist/easylist.txt",
+      "license": "GPLv3 / CC BY-SA 3.0 — https://easylist.to/pages/licence.html",
+      "version": "202611070416",
+      "lastModified": "07 Nov 2026 04:16 UTC"
+    },
+    {
+      "id": "adguard-turkish",
+      "title": "AdGuard Turkish filter",
+      "url": "https://filters.adtidy.org/extension/ublock/filters/13.txt",
+      "license": "GPLv3 — https://github.com/AdguardTeam/AdguardFilters/blob/master/LICENSE",
+      "version": "2.0.69.61",
+      "lastModified": "2026-11-07T02:10:12+00:00"
+    }
+  ],
+  "stats": {
+    "network": 7714,
+    "cosmetic": 39370,
+    "skipped": {
+      "invalid-dnr": 10,
+      "domain-unusable": 679,
+      "regex": 44,
+      "option:rewrite": 7,
+      "option:csp": 4,
+      "unsafe-selector": 40,
+      "non-ascii": 24,
+      "procedural": 463,
+      "scriptlet-or-html": 354,
+      "option:redirect": 35,
+      "option:redirect-rule": 1,
+      "option:denyallow": 3
+    },
+    "blockedHosts": 44506
+  }
+}

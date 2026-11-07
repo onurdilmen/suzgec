@@ -32,6 +32,12 @@ const pages = {
       document.addEventListener('click', () => { window.__opened = window.open('http://popunder.test/landing'); });
     </script>
   </body></html>`,
+  '/lists': `<!doctype html><html><body>
+    <img id="listimg" src="http://vtkfotftpbd.com/x.png" width="300" height="250">
+    <div class="a-ad" id="generic">liste reklamı</div>
+    <button id="open" type="button">aç</button>
+    <script>document.getElementById('open').addEventListener('click', () => window.open('http://11x11.com/landing'));</script>
+  </body></html>`,
   '/overlay': `<!doctype html><html><body>
     <p id="content">içerik</p>
     <a id="trap" href="http://ads-network.test/trap" target="_blank" style="position:fixed;inset:0;z-index:99999;opacity:0"></a>
@@ -64,7 +70,7 @@ const context = await chromium.launchPersistentContext('', {
   args: [
     `--disable-extensions-except=${EXT}`,
     `--load-extension=${EXT}`,
-    `--host-resolver-rules=MAP *.test 127.0.0.1:${port}`,
+    `--host-resolver-rules=MAP *.test 127.0.0.1:${port}, MAP vtkfotftpbd.com 127.0.0.1:${port}, MAP 11x11.com 127.0.0.1:${port}`,
   ],
 });
 
@@ -144,6 +150,24 @@ try {
     assert.equal(context.pages().length, before);
     assert.equal(await overlay.locator('#trap').getAttribute('data-suzgec-hidden'), 'overlay');
   });
+
+  hits.length = 0;
+  const lists = await context.newPage();
+  await lists.goto('http://site.test/lists');
+  await lists.waitForTimeout(1000);
+  await check('EasyList host blocked at network level', async () => {
+    assert.equal(hits.some((h) => h.startsWith('vtkfotftpbd.com')), false, hits.join(', '));
+  });
+  await check('EasyList generic selector hides element', async () => {
+    assert.equal(await lists.locator('#generic').isVisible(), false);
+  });
+  await check('popup to a listed destination is closed', async () => {
+    const before = context.pages().length;
+    await lists.locator('#open').click();
+    await lists.waitForTimeout(1500);
+    assert.equal(context.pages().length, before, context.pages().map((x) => x.url()).join(', '));
+  });
+  await lists.close();
 
   await check('popup explains why each item was blocked', async () => {
     await page.reload();

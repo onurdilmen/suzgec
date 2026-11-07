@@ -23,6 +23,7 @@ const REASON_LABELS = {
   "overlay-link": "görünmez tıklama tuzağı",
   "overlay-layer": "görünmez tam ekran katman",
   "empty-ad-slot": "içi boşalmış reklam alanı",
+  "popup-list": "filtre listesindeki popup adresi",
 };
 const KIND_LABELS = { popup: "Popup engellendi", hidden: "Gizlendi" };
 
@@ -51,6 +52,7 @@ const render = (state) => {
   $("s-hidden").textContent = state.tab.hidden;
   $("s-popup").textContent = state.tab.popup;
   $("trackers").checked = state.trackers;
+  $("lists").checked = state.lists;
   $("total").textContent = state.total.toLocaleString("tr-TR");
   $("pick").disabled = !host || state.paused;
   $("clear-custom").hidden = state.customCount === 0;
@@ -121,6 +123,23 @@ $("pause").addEventListener("click", async () => {
   await refresh();
   if (tab?.id != null) chrome.tabs.reload(tab.id);
 });
+
+$("lists").addEventListener("change", async () => {
+  await call("popup:toggleLists");
+  await refresh();
+  if (tab?.id != null) chrome.tabs.reload(tab.id);
+});
+
+const showListsMeta = async () => {
+  try {
+    const meta = await fetch("../filters/meta.json").then((r) => r.json());
+    const date = new Date(meta.builtAt).toLocaleDateString("tr-TR");
+    $("lists-meta").textContent = `Listeler: ${meta.sources.map((s) => s.title).join(" + ")} · ${date}`;
+  } catch {
+    $("lists-meta").textContent = "";
+  }
+};
+showListsMeta();
 
 $("trackers").addEventListener("change", async () => {
   await call("popup:toggleTrackers");

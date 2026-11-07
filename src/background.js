@@ -2,6 +2,7 @@
  * Süzgeç service worker: state, learning, dynamic DNR rules, content-script registration.
  */
 import "./heuristics.js";
+import { createPopupMatcher, cssFor, isGenericHideHost, selectorsForHost } from "./filter-match.js";
 
 const H = globalThis.SuzgecHeuristics;
 
@@ -33,7 +34,7 @@ const SUBRESOURCE_TYPES = [
   "other",
 ];
 ALL_TYPES.push(...SUBRESOURCE_TYPES);
-const SCRIPT_IDS = ["suzgec-main", "suzgec-isolated"];
+const SCRIPT_IDS = ["suzgec-main", "suzgec-isolated", "suzgec-generic"];
 
 const DEFAULT_STATE = Object.freeze({
   paused: [], // registrable domains where protection is off
@@ -41,6 +42,7 @@ const DEFAULT_STATE = Object.freeze({
   candidates: {}, // domain -> { hits, from }
   custom: {}, // registrable domain -> [selectors]
   trackers: true,
+  lists: true, // EasyList + AdGuard Turkish (network, cosmetic, popup)
   trusted: [], // [{ domain, site }]: user said "not an ad" for `domain` while on `site`
   contrib: {}, // site -> number of domains it has ever reported (persistent cap)
   total: 0,
@@ -118,12 +120,30 @@ const applyDynamicRules = async (state) => {
   });
 };
 
-const applyRulesets = (state) =>
-  chrome.declarativeNetRequest.updateEnabledRulesets(
-    state.trackers
-      ? { enableRulesetIds: ["trackers"] }
-      : { disableRulesetIds: ["trackers"] },
-  );
+const applyRulesets = (state) => {
+  const on = (flag, id) => (flag ? [id] : []);
+  const off = (flag, id) => (flag ? [] : [id]);
+  const lists = state.lists !== false;
+  return chrome.declarativeNetRequest.updateEnabledRulesets({
+    enableRulesetIds: [...on(state.trackers, "trackers"), ...on(lists, "filters")],
+    disableRulesetIds: [...off(state.trackers, "trackers"), ...off(lists, "filters")],
+  });
+};
+
+// ---- generated filter-list data (loaded lazily, cached per worker lifetime) --
+const loadJson = (file) => fetch(chrome.runtime.getURL(file)).then((r) => r.json());
+let cosmeticPromise = null;
+const getCosmetic = () =>
+  (cosmeticPromise ??= loadJson("src/generated/cosmetic.json").catch(() => ({
+    specific: {},
+    scoped: [],
+    generichide: [],
+  })));
+let popupMatcherPromise = null;
+const getPopupMatcher = () =>
+  (popupMatcherPromise ??= loadJson("src/generated/popup.json")
+    .then((data) => createPopupMatcher(data, H.registrableDomain))
+    .catch(() => () => null));
 
 const syncContentScripts = async (state) => {
   const excludeMatches = state.paused.flatMap((domain) => [
@@ -145,7 +165,24 @@ const syncContentScripts = async (state) => {
     await chrome.scripting.unregisterContentScripts({
       ids: registered.map((s) => s.id),
     });
+  // Generic list CSS is skipped on paused sites and on $generichide sites.
+  const cosmetic = await getCosmetic();
+  const genericExclude = [
+    ...excludeMatches,
+    ...cosmetic.generichide.flatMap((d) => [`*://${d}/*`, `*://*.${d}/*`]),
+  ];
+  const lists = state.lists !== false;
   await chrome.scripting.registerContentScripts([
+    ...(lists
+      ? [
+          {
+            ...common,
+            ...(genericExclude.length ? { excludeMatches: genericExclude } : {}),
+            id: "suzgec-generic",
+            css: ["src/generated/generic-hide.css"],
+          },
+        ]
+      : []),
     {
       ...common,
       id: "suzgec-main",
@@ -189,7 +226,7 @@ const updateTab = (tabId, mutate) => {
 
 const REASONS = new Set([
   "cross-site", "ad-size", "media", "gambling", "ad-context", "same-advertiser",
-  "overlay-link", "overlay-layer", "empty-ad-slot",
+  "overlay-link", "overlay-layer", "empty-ad-slot", "popup-list",
 ]);
 
 const recordBlock = (tabId, { kind, url, reasons }) =>
@@ -290,13 +327,8 @@ const learnFrom = ({ url, score, kind, pageHost }) =>
   });
 
 // ---- custom (picker) CSS ---------------------------------------------------
-const customCss = (selectors) =>
-  selectors.length
-    ? `${selectors.join(",\n")} { display: none !important; }`
-    : "";
-
 const injectCustom = async (tabId, frameId, selectors) => {
-  const css = customCss(selectors);
+  const css = cssFor(selectors);
   if (!css) return;
   await chrome.scripting
     .insertCSS({ target: { tabId, frameIds: [frameId] }, css })
@@ -312,13 +344,24 @@ const fromContent = async (message, sender) => {
   switch (message.type) {
     case "init": {
       const state = await loadState();
-      const selectors = state.custom[site] ?? [];
+      const frameHost = hostOf(sender.url ?? "") || pageHost;
+      const listSelectors =
+        state.lists !== false
+          ? selectorsForHost(frameHost, await getCosmetic())
+          : [];
+      const selectors = [
+        ...listSelectors,
+        ...(state.custom[H.registrableDomain(frameHost)] ?? []),
+      ];
       if (tabId != null)
         await injectCustom(tabId, sender.frameId ?? 0, selectors);
       return {
         ok: true,
         trusted: trustedEntries(state)
-          .filter((t) => t.site === H.registrableDomain(hostOf(sender.tab?.url ?? "")))
+          .filter(
+            (t) =>
+              t.site === H.registrableDomain(hostOf(sender.tab?.url ?? "")),
+          )
           .map((t) => t.domain),
       };
     }
@@ -377,7 +420,7 @@ const fromPopup = async (message) => {
           rulesMatchedInfo.reduce(
             (acc, { rule }) => {
               const bucket =
-                rule.rulesetId === "ads"
+                rule.rulesetId === "ads" || rule.rulesetId === "filters"
                   ? "ads"
                   : rule.rulesetId === "trackers"
                     ? "trackers"
@@ -396,6 +439,7 @@ const fromPopup = async (message) => {
         site,
         paused: state.paused.includes(site),
         trackers: state.trackers,
+        lists: state.lists !== false,
         total: state.total,
         tab: { ...tab, network },
         learned: Object.entries(state.learned)
@@ -442,6 +486,11 @@ const fromPopup = async (message) => {
         return { ...s, learned, candidates, trusted: [...list, { domain, site }] };
       });
       await applyDynamicRules(state);
+      return { ok: true };
+    }
+    case "popup:toggleLists": {
+      const state = await updateState((s) => ({ ...s, lists: s.lists === false }));
+      await applyAll(state);
       return { ok: true };
     }
     case "popup:toggleTrackers": {
@@ -518,6 +567,48 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
 chrome.tabs.onRemoved.addListener((tabId) =>
   chrome.storage.session.remove(tabKey(tabId)),
 );
+
+// ---- list-based popup/popunder blocking ------------------------------------
+// A new tab opened by a page is watched for a few seconds (popunders often open
+// about:blank first and redirect); if it lands on a listed destination it is closed.
+const POPUP_WATCH_MS = 8000;
+const watchedPopups = new Map(); // tabId -> { sourceTabId, sourceHost, until }
+
+const checkPopup = async (tabId, url) => {
+  const watch = watchedPopups.get(tabId);
+  if (!watch) return;
+  if (Date.now() > watch.until) {
+    watchedPopups.delete(tabId);
+    return;
+  }
+  const host = hostOf(url);
+  if (!host || H.isSameSite(host, watch.sourceHost)) return;
+  const match = await getPopupMatcher();
+  if (!match(url, watch.sourceHost)) return;
+  watchedPopups.delete(tabId);
+  await chrome.tabs.remove(tabId).catch(() => {});
+  await recordBlock(watch.sourceTabId, { kind: "popup", url, reasons: ["popup-list"] });
+};
+
+chrome.webNavigation.onCreatedNavigationTarget.addListener(async (details) => {
+  const state = await loadState();
+  if (state.lists === false) return;
+  const source = await chrome.tabs.get(details.sourceTabId).catch(() => null);
+  const sourceHost = hostOf(source?.url ?? "");
+  if (!sourceHost || state.paused.includes(H.registrableDomain(sourceHost))) return;
+  watchedPopups.set(details.tabId, {
+    sourceTabId: details.sourceTabId,
+    sourceHost,
+    until: Date.now() + POPUP_WATCH_MS,
+  });
+  await checkPopup(details.tabId, details.url);
+});
+
+chrome.webNavigation.onBeforeNavigate.addListener((details) => {
+  if (details.frameId === 0 && watchedPopups.has(details.tabId))
+    checkPopup(details.tabId, details.url).catch(() => {});
+});
+chrome.tabs.onRemoved.addListener((tabId) => watchedPopups.delete(tabId));
 
 const boot = async () => {
   await chrome.declarativeNetRequest.setExtensionActionOptions({

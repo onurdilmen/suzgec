@@ -46,6 +46,10 @@
         Elle gizlenenleri sıfırla (<span id="custom-count">0</span>)
       </button>
       <label class="check">
+        <input type="checkbox" id="lists" />
+        <span>Filtre listeleri (EasyList + Türkçe)</span>
+      </label>
+      <label class="check">
         <input type="checkbox" id="trackers" />
         <span>İzleyicileri de engelle (Analytics, pixel…)</span>
       </label>
@@ -72,6 +76,7 @@
 
     <footer class="foot">
       Toplam engellenen: <strong id="total">0</strong>
+      <span class="lists-meta" id="lists-meta"></span>
     </footer>
     <template id="learned-item">
       <li>
