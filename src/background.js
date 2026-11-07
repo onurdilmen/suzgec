@@ -37,6 +37,7 @@ const DEFAULT_STATE = Object.freeze({
   candidates: {}, // domain -> { hits, from }
   custom: {}, // registrable domain -> [selectors]
   trackers: true,
+  contrib: {}, // site -> number of domains it has ever reported (persistent cap)
   total: 0,
 });
 
@@ -165,13 +166,21 @@ const hostOf = (url) => {
   }
 };
 
+// IP literals, localhost and single-label hosts are free to mint: they never count as a site.
+const isPublicSite = (site) =>
+  Boolean(site) &&
+  site.includes(".") &&
+  !/^\d+(\.\d+){3}$/.test(site) &&
+  !site.includes(":") &&
+  !/(^|\.)localhost$/.test(site);
+
 const learnFrom = ({ url, score, kind, pageHost }) =>
   updateState((state) => {
     // Popup reports travel over window.postMessage, which the page can spoof: stats only.
     if (kind === "popup") return state;
     const host = hostOf(url);
     const from = H.registrableDomain(pageHost);
-    if (!host || !from || H.isSafeHost(host) || H.isSameSite(host, pageHost))
+    if (!host || !isPublicSite(from) || H.isSafeHost(host) || H.isSameSite(host, pageHost))
       return state;
     const domain = H.learnKey(host);
     if (
@@ -188,10 +197,10 @@ const learnFrom = ({ url, score, kind, pageHost }) =>
     const bucket = strong ? "strong" : "weak";
     if (entry[bucket].includes(from)) return state;
 
-    const contributions = Object.values(state.candidates).filter(
-      (c) => c.strong?.includes(from) || c.weak?.includes(from),
-    ).length;
+    const contrib = state.contrib ?? {};
+    const contributions = contrib[from] ?? 0;
     if (contributions >= MAX_CONTRIB_PER_SITE) return state;
+    const nextContrib = { ...contrib, [from]: contributions + 1 };
 
     const next = { ...entry, [bucket]: [...entry[bucket], from] };
     const sites = new Set([...next.strong, ...next.weak]);
@@ -203,6 +212,7 @@ const learnFrom = ({ url, score, kind, pageHost }) =>
       return {
         ...state,
         candidates,
+        contrib: nextContrib,
         learned: {
           ...state.learned,
           [domain]: {
@@ -220,6 +230,7 @@ const learnFrom = ({ url, score, kind, pageHost }) =>
       return state;
     return {
       ...state,
+      contrib: nextContrib,
       candidates: { ...state.candidates, [domain]: next },
     };
   });
@@ -256,12 +267,17 @@ const fromContent = async (message, sender) => {
       const kind = message.kind === "popup" ? "popup" : "hidden";
       await bumpTab(tabId, kind);
       await updateState((state) => ({ ...state, total: state.total + 1 }));
-      await learnFrom({
-        url: String(message.url ?? ""),
-        score: Number(message.score) || 0,
-        kind: message.kind,
-        pageHost,
-      });
+      // Only top-level documents count as a reporting site, and the site comes from the
+      // browser (sender.tab.url), not from the message: a page can't stack iframes of
+      // many throwaway domains to fake independent sites.
+      if (sender.frameId === 0) {
+        await learnFrom({
+          url: String(message.url ?? ""),
+          score: Number(message.score) || 0,
+          kind: message.kind,
+          pageHost: hostOf(sender.tab?.url ?? ""),
+        });
+      }
       return { ok: true };
     }
     case "addCustom": {
