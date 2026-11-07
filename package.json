@@ -6,8 +6,18 @@
   "description": "Süzgeç — akıllı reklam engelleyici (Chrome MV3)",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "npm run build && node --test test/*.test.js",
-    "test:e2e": "npm run build && node test/e2e/run.mjs",
-    "filters": "node scripts/filters/build.mjs"
+    "lint:filters": "aglint filters/custom.txt",
+    "filters": "npm run lint:filters && node scripts/filters/build.mjs && npm run build",
+    "test": "npm run build && npm run lint:filters && node --test test/*.test.js",
+    "test:e2e": "npm run build && node test/e2e/run.mjs"
+  },
+  "devDependencies": {
+    "@adguard/aglint": "3.0.3",
+    "@adguard/agtree": "4.3.0",
+    "@adguard/dnr-converter": "2.0.0",
+    "@adguard/extended-css": "2.3.0",
+    "@adguard/re2-wasm": "1.2.0",
+    "@adguard/scriptlets": "2.5.1",
+    "esbuild": "0.28.2"
   }
 }

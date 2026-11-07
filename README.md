@@ -2,12 +2,18 @@
 
 Katmanlar:
 
-1. **Ağ engeli (DNR):** `rules/filters.json` (EasyList + AdGuard Turkish'ten dönüştürülmüş ~7.700 kural, ~44.500 alan adı), `rules/ads.json` (site-özel), `rules/trackers.json` (açılıp kapatılabilir).
-   - Listelerden ayrıca ~39.000 gizleme seçicisi (genel CSS + site-özel) ve ~2.900 popup hedefi gelir; popup hedefine açılan sekme arka planda kapatılır.
-2. **Sezgisel gizleme:** Dış siteye giden link/iframe'leri puanlar (IAB reklam boyutu, medya, bahis kelimeleri, `ad/banner/money/promo` sınıfları). Eşik ≥6 gizler. Bir alan adı ancak **birbirinden bağımsız siteler** raporladığında öğrenilir (≥8 puanla 2 site ya da gizleme puanıyla 4 site) ve yalnızca alt kaynaklar (script, görsel, iframe…) için engellenir; tek bir site global kural oluşturamaz, popup raporları öğrenmeye katılmaz. Aynı sayfada reklam olduğu kanıtlanan alan adına giden zayıf linkler de gizlenir.
-3. **Popup/popunder koruması (MAIN world):** `window.open`, sentetik `a.click()` ve `dispatchEvent(click)` kullanıcı hareketine göre değerlendirilir.
-4. **Tıklama tuzağı koruması:** Sayfayı kaplayan görünmez katmanlara yapılan ilk tıklama yutulur ve katman kaldırılır.
-5. **Öğe seçici:** Popup → "Öğe seç ve gizle"; seçiciler site bazında saklanır.
+1. **Ağ engeli (DNR)** — 4 statik kural seti, toplam ~29.500 kural (Chrome'un 30k garantisi içinde):
+   - `filters`: EasyList, AdGuard Turkish, uBlock filters/Badware/Unbreak, `filters/custom.txt`
+   - `privacy`: EasyPrivacy, uBlock Privacy (popup'taki "İzleyiciler" anahtarına bağlı)
+   - `annoyances`: EasyList Cookie ("Çerez bannerları" anahtarı)
+   - `trackers`: temel izleyici listesi
+   - Düz `||host^` kuralları gruplanır (~88k alan adı); diğerleri **@adguard/dnr-converter** ile çevrilir ($redirect, $removeparam, $csp dahil). `$redirect` kaynakları `redirects/`.
+2. **Gizleme** — genel CSS (grup başına kayıtlı içerik CSS'i) + site-özel seçiciler (worker `insertCSS`).
+3. **Scriptlet'ler** — uBO/AdGuard `+js()` kuralları, **@adguard/scriptlets** fonksiyonları; uBO Lite modeliyle her scriptlet yalnız ilgili sitelerde `document_start`'ta MAIN world içerik betiği olarak çalışır (YouTube reklam verisi temizleme dahil). Genel (alan adsız) scriptlet'ler uBO gibi uygulanmaz.
+4. **Gelişmiş gizleme** — `:has-text`/`:contains`, `:upward`, `:style` vb. **@adguard/extended-css** ile.
+5. **Popup/popunder** — MAIN world `window.open` koruması + listedeki popup hedeflerine açılan sekmeyi kapatma.
+6. **Sezgisel katman + öğrenme** — reklam boyutu/bahis/medya puanlaması, bağımsız sitelerden öğrenme, "Reklam değil" güven listesi, görünmez tıklama tuzağı, boş reklam alanı kapatma.
+7. **Öğe seçici** — popup → "Öğe seç ve gizle".
 
 ## Kurulum
 
@@ -20,7 +26,7 @@ npm run build          # src/heuristics.main.js kopyasını üretir (Chrome ayn�
 ## Filtre listelerini güncelleme
 
 ```bash
-npm run filters            # listeleri indirir, dönüştürür (rules/filters.json, src/generated/*)
+npm run filters            # AGLint (custom.txt) → indir → dönüştür → paketle
 npm run filters -- --offline   # filters/cache'teki son indirilenle yeniden dönüştürür
 ```
 

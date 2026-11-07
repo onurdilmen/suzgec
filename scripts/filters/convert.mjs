@@ -212,7 +212,10 @@ const compactPopups = (block, allow) => {
  * Converts several filter list texts into extension artefacts.
  * @param {string[]} texts
  */
-export const convertLists = (texts, { domainChunk = 5000 } = {}) => {
+export const convertLists = (texts, { domainChunk = 5000, delegate = false } = {}) => {
+  // delegate: network rules other than plain hosts / popups are returned as text in
+  // `delegated` for a full DNR converter instead of being converted here.
+  const delegated = [];
   const stats = { network: 0, cosmetic: 0, skipped: {} };
   const skip = (reason) => {
     stats.skipped[reason] = (stats.skipped[reason] ?? 0) + 1;
@@ -232,11 +235,13 @@ export const convertLists = (texts, { domainChunk = 5000 } = {}) => {
     }
     const n = parseNetworkFilter(line);
     if (n.kind === 'skip') {
-      skip(n.reason);
+      if (delegate && n.reason !== 'too-broad') delegated.push(line);
+      else skip(n.reason);
       continue;
     }
     if (n.flags.has('badfilter')) {
       badfilters.add(line.replace(/[$,]badfilter/, '').replace(/\$$/, ''));
+      if (delegate) delegated.push(line);
       continue;
     }
     network.push({ line, ...n });
@@ -259,6 +264,10 @@ export const convertLists = (texts, { domainChunk = 5000 } = {}) => {
       const entry = [item.pattern, initiatorDomains, excludedInitiatorDomains, domainType];
       (item.exception ? popupAllow : popupBlock).push(entry);
       if (item.flags.has('popup-only')) continue;
+      if (delegate) {
+        skip('popup-mixed-types');
+        continue;
+      }
     }
     const pure = PURE_HOST.exec(item.pattern);
     const optionless = Object.keys(item.condition).length === 1 && item.condition.urlFilter;
@@ -273,6 +282,10 @@ export const convertLists = (texts, { domainChunk = 5000 } = {}) => {
       const host = pure ? toAsciiHost(pure[1]) : '';
       if (host) generichide.add(host);
       if (!item.flags.has('document')) continue;
+    }
+    if (delegate) {
+      delegated.push(item.line);
+      continue;
     }
     let action;
     let condition = item.condition;
@@ -351,6 +364,7 @@ export const convertLists = (texts, { domainChunk = 5000 } = {}) => {
     genericCss: [...generic].sort().map((s) => `${s}{display:none!important}`).join('\n'),
     cosmeticData: { specific, scoped, generichide: [...generichide].sort() },
     popupData: compactPopups(popupBlock, popupAllow),
+    delegated,
     stats,
   };
 };

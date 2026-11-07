@@ -2,10 +2,15 @@
 
 `rules/filters.json`, `src/generated/*` dosyaları aşağıdaki listelerden `npm run filters` ile üretilir:
 
-| Liste | Kaynak | Lisans |
+| Liste / paket | Kaynak | Lisans |
 |---|---|---|
-| EasyList | https://easylist.to/easylist/easylist.txt | GPLv3 veya CC BY-SA 3.0 (ikili) |
-| AdGuard Turkish filter | https://filters.adtidy.org/extension/ublock/filters/13.txt | GPLv3 |
+| EasyList, EasyPrivacy, EasyList Cookie | https://easylist.to | GPLv3 veya CC BY-SA 3.0 |
+| AdGuard Turkish | https://filters.adtidy.org | GPLv3 |
+| uBlock filters / Badware / Unbreak / Privacy | https://github.com/uBlockOrigin/uAssets | GPLv3 |
+| @adguard/scriptlets (scriptlet fonksiyonları, `redirects/`) | https://github.com/AdguardTeam/Scriptlets | GPLv3 |
+| @adguard/extended-css (`src/vendor/extended-css.js`) | https://github.com/AdguardTeam/ExtendedCss | GPLv3 |
+| @adguard/dnr-converter, @adguard/agtree (derleme aracı) | https://github.com/AdguardTeam/tsurlfilter | GPLv3 / MIT |
+| @adguard/aglint (derleme aracı) | https://github.com/AdguardTeam/AGLint | MIT |
 
 Sürüm ve dönüşüm istatistikleri: `filters/meta.json`.
 

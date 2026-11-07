@@ -89,3 +89,37 @@ test("cssFor emits one rule per selector", () => {
     ".a{display:none!important}\n.b{display:none!important}",
   );
 });
+
+test("injectionsForHost picks scriptlets/extcss by domain, group and exceptions", async () => {
+  const { injectionsForHost } = await import("../src/filter-match.js");
+  const entry = (o) => ({ args: [], include: [], exclude: [], exception: false, group: "filters", ...o });
+  const scriptlets = [
+    entry({ name: "set-constant", args: ["adBlock", "false"], include: ["example.com"] }),
+    entry({ name: "abort-on-property-read", args: ["popunder"] }),
+    entry({ name: "json-prune", args: ["ads"], include: ["video.example.com"] }),
+    entry({ name: "", include: ["safe.example.com"], exception: true }),
+    entry({ name: "abort-on-property-read", args: ["popunder"], include: ["news.org"], exception: true }),
+    entry({ name: "set-constant", args: ["x", "1"], include: ["example.com"], group: "privacy" }),
+  ];
+  const index = (entries) => {
+    const byDomain = {};
+    const generic = [];
+    entries.forEach((e, i) => (e.include.length ? e.include.forEach((d) => (byDomain[d] ??= []).push(i)) : generic.push(i)));
+    return { entries, byDomain, generic };
+  };
+  const extcss = [
+    entry({ css: ".ad:contains(Reklam) { display: none !important; }", include: ["example.com"] }),
+    entry({ css: ".ad:contains(Reklam) { display: none !important; }", include: ["video.example.com"], exception: true }),
+  ];
+  const data = { scriptlets: index(scriptlets), extcss: index(extcss) };
+  const groups = new Set(["filters"]);
+
+  const a = injectionsForHost("video.example.com", data, groups);
+  assert.deepEqual(a.scriptlets.map((s) => s.name).sort(), ["abort-on-property-read", "json-prune", "set-constant"]);
+  assert.deepEqual(a.css, []);
+
+  assert.deepEqual(injectionsForHost("safe.example.com", data, groups).scriptlets, []);
+  assert.deepEqual(injectionsForHost("news.org", data, groups).scriptlets, []);
+  assert.equal(injectionsForHost("example.com", data, groups).css.length, 1);
+  assert.equal(injectionsForHost("example.com", data, new Set(["filters", "privacy"])).scriptlets.length, 3);
+});

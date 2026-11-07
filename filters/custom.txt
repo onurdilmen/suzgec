@@ -1,0 +1,32 @@
+! Title: Süzgeç custom filters
+! Description: Süzgeç'in kendi kuralları (AGLint ile doğrulanır)
+! Homepage: https://git.teknoweb.net/
+!
+! hdfilmcehennemi: bahis banner yönlendiricisi ve popunder ağları (sayfa açılışı dahil)
+||fmhdfc.click^$all
+||agl005.tech^$all
+||adangle.online^$all
+!
+! Popunder / pop reklam ağları
+||popads.net^
+||popcash.net^
+||propellerads.com^
+||propellerclick.com^
+||adsterra.com^
+||exoclick.com^
+||exosrv.com^
+||juicyads.com^
+||onclickads.net^
+||onclkds.com^
+||hilltopads.net^
+||clickadu.com^
+||adcash.com^
+||admaven.com^
+||ad-maven.com^
+||pushground.com^
+||richads.com^
+||galaksion.com^
+||zeropark.com^
+||realsrv.com^
+||tsyndicate.com^
+||magsrv.com^

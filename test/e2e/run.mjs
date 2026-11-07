@@ -44,9 +44,27 @@ const pages = {
   </body></html>`,
 };
 
+// Real list entries (picked from the generated data) served from a local server.
+const listPages = {
+  'promy.pro': `<!doctype html><html><body><p id="out">?</p>
+    <script>window.canRunAds = false; document.getElementById('out').textContent = String(window.canRunAds);</script>
+  </body></html>`,
+  'www.theregister.com': `<!doctype html><html><body>
+    <article class="large-12" id="sponsored">SPONSORED FEATURE: buy now</article>
+    <article class="large-12" id="story">Normal haber</article>
+    <div id="a-cookie">Bu site çerez kullanır</div>
+    <img id="tracker" src="http://trkbc.com/pixel.png" width="1" height="1">
+  </body></html>`,
+};
+
 const server = createServer((req, res) => {
   const host = (req.headers.host ?? '').split(':')[0];
   hits.push(`${host}${req.url}`);
+  if (listPages[host] && req.url === '/') {
+    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+    res.end(listPages[host]);
+    return;
+  }
   if ((host === 'site.test' || host === 'another.test') && pages[req.url]) {
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
     res.end(pages[req.url]);
@@ -70,7 +88,7 @@ const context = await chromium.launchPersistentContext('', {
   args: [
     `--disable-extensions-except=${EXT}`,
     `--load-extension=${EXT}`,
-    `--host-resolver-rules=MAP *.test 127.0.0.1:${port}, MAP vtkfotftpbd.com 127.0.0.1:${port}, MAP 11x11.com 127.0.0.1:${port}`,
+    `--host-resolver-rules=MAP *.test 127.0.0.1:${port}, MAP vtkfotftpbd.com 127.0.0.1:${port}, MAP 11x11.com 127.0.0.1:${port}, MAP promy.pro 127.0.0.1:${port}, MAP www.theregister.com 127.0.0.1:${port}, MAP trkbc.com 127.0.0.1:${port}`,
   ],
 });
 
@@ -87,6 +105,11 @@ const check = async (name, fn) => {
 try {
   const worker = context.serviceWorkers()[0] ?? (await context.waitForEvent('serviceworker'));
   await new Promise((r) => setTimeout(r, 1500)); // let onInstalled register scripts/rules
+
+  await check('all static rulesets are enabled by Chrome', async () => {
+    const enabled = await worker.evaluate(() => chrome.declarativeNetRequest.getEnabledRulesets());
+    assert.deepEqual([...enabled].sort(), ['annoyances', 'filters', 'privacy', 'trackers']);
+  });
 
   const page = await context.newPage();
   await page.goto('http://site.test/');
@@ -168,6 +191,30 @@ try {
     assert.equal(context.pages().length, before, context.pages().map((x) => x.url()).join(', '));
   });
   await lists.close();
+
+  hits.length = 0;
+  const scripted = await context.newPage();
+  await scripted.goto('http://promy.pro/');
+  await scripted.waitForTimeout(1200);
+  await check('uBlock scriptlet (set-constant) runs before the page\'s own code', async () => {
+    assert.equal(await scripted.locator('#out').textContent(), 'true');
+  });
+  await scripted.close();
+
+  const reg = await context.newPage();
+  await reg.goto('http://www.theregister.com/');
+  await reg.waitForTimeout(1500);
+  await check('ExtendedCss :contains() hides sponsored article only', async () => {
+    assert.equal(await reg.locator('#sponsored').isVisible(), false);
+    assert.equal(await reg.locator('#story').isVisible(), true);
+  });
+  await check('cookie banner hidden by EasyList Cookie', async () => {
+    assert.equal(await reg.locator('#a-cookie').isVisible(), false);
+  });
+  await check('EasyPrivacy tracker blocked at network level', async () => {
+    assert.equal(hits.some((h) => h.startsWith('trkbc.com')), false, hits.join(', '));
+  });
+  await reg.close();
 
   await check('popup explains why each item was blocked', async () => {
     await page.reload();
