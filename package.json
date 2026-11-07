@@ -1,0 +1,11 @@
+{
+  "name": "suzgec",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Süzgeç — akıllı reklam engelleyici (Chrome MV3)",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "test:e2e": "node test/e2e/run.mjs"
+  }
+}
