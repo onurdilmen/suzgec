@@ -1,8 +1,9 @@
 {
-  "builtAt": "2026-11-07T04:34:47.694Z",
+  "builtAt": "2026-11-07T05:33:38.501Z",
   "sources": [
     {
       "id": "easylist",
+      "group": "filters",
       "title": "EasyList",
       "url": "https://easylist.to/easylist/easylist.txt",
       "license": "GPLv3 / CC BY-SA 3.0 — https://easylist.to/pages/licence.html",
@@ -11,30 +12,129 @@
     },
     {
       "id": "adguard-turkish",
-      "title": "AdGuard Turkish filter",
+      "group": "filters",
+      "title": "AdGuard Turkish",
       "url": "https://filters.adtidy.org/extension/ublock/filters/13.txt",
       "license": "GPLv3 — https://github.com/AdguardTeam/AdguardFilters/blob/master/LICENSE",
       "version": "2.0.69.61",
       "lastModified": "2026-11-07T02:10:12+00:00"
+    },
+    {
+      "id": "ublock-filters",
+      "group": "filters",
+      "title": "uBlock filters",
+      "url": "https://ublockorigin.github.io/uAssets/filters/filters.txt",
+      "license": "GPLv3 — https://github.com/uBlockOrigin/uAssets/blob/master/LICENSE",
+      "version": null,
+      "lastModified": "Sat, 07 Nov 2026 02:04:14 +0000"
+    },
+    {
+      "id": "ublock-badware",
+      "group": "filters",
+      "title": "uBlock Badware",
+      "url": "https://ublockorigin.github.io/uAssets/filters/badware.txt",
+      "license": "GPLv3 — https://github.com/uBlockOrigin/uAssets/blob/master/LICENSE",
+      "version": null,
+      "lastModified": "Fri, 06 Nov 2026 12:35:31 +0000"
+    },
+    {
+      "id": "ublock-unbreak",
+      "group": "filters",
+      "title": "uBlock Unbreak",
+      "url": "https://ublockorigin.github.io/uAssets/filters/unbreak.txt",
+      "license": "GPLv3 — https://github.com/uBlockOrigin/uAssets/blob/master/LICENSE",
+      "version": null,
+      "lastModified": "Fri, 06 Nov 2026 02:39:15 +0000"
+    },
+    {
+      "id": "custom",
+      "group": "filters",
+      "title": "Süzgeç",
+      "url": "filters/custom.txt",
+      "license": "Süzgeç",
+      "version": null,
+      "lastModified": null
+    },
+    {
+      "id": "easyprivacy",
+      "group": "privacy",
+      "title": "EasyPrivacy",
+      "url": "https://easylist.to/easylist/easyprivacy.txt",
+      "license": "GPLv3 / CC BY-SA 3.0 — https://easylist.to/pages/licence.html",
+      "version": "202611070509",
+      "lastModified": "07 Nov 2026 05:09 UTC"
+    },
+    {
+      "id": "ublock-privacy",
+      "group": "privacy",
+      "title": "uBlock Privacy",
+      "url": "https://ublockorigin.github.io/uAssets/filters/privacy.txt",
+      "license": "GPLv3 — https://github.com/uBlockOrigin/uAssets/blob/master/LICENSE",
+      "version": null,
+      "lastModified": "Fri, 06 Nov 2026 10:11:52 +0000"
+    },
+    {
+      "id": "easylist-cookie",
+      "group": "annoyances",
+      "title": "EasyList Cookie",
+      "url": "https://secure.fanboy.co.nz/fanboy-cookiemonster.txt",
+      "license": "GPLv3 / CC BY-SA 3.0 — https://easylist.to/pages/licence.html",
+      "version": null,
+      "lastModified": "2026-11-06 22:25 UTC"
     }
   ],
   "stats": {
-    "network": 7714,
-    "cosmetic": 39370,
-    "skipped": {
-      "invalid-dnr": 10,
-      "domain-unusable": 679,
-      "regex": 44,
-      "option:rewrite": 7,
-      "option:csp": 4,
-      "unsafe-selector": 40,
-      "non-ascii": 24,
-      "procedural": 463,
-      "scriptlet-or-html": 354,
-      "option:redirect": 35,
-      "option:redirect-rule": 1,
-      "option:denyallow": 3
-    },
-    "blockedHosts": 44506
+    "groups": {
+      "filters": {
+        "dnrRules": 14629,
+        "blockedHosts": 44611,
+        "converterErrors": 536,
+        "droppedInvalid": 4,
+        "cosmeticSelectors": 41549,
+        "scriptlets": 2416,
+        "extendedCss": 983,
+        "skipped": {
+          "unsafe-selector": 1,
+          "procedural": 12,
+          "popup-mixed-types": 16,
+          "badfilter": 9,
+          "cosmetic-exception": 6,
+          "domain-unusable": 1755,
+          "scriptlet-unknown": 42,
+          "skip:HtmlFilteringRule": 32,
+          "scriptlet-generic": 6,
+          "unparsable": 1
+        }
+      },
+      "privacy": {
+        "dnrRules": 12900,
+        "blockedHosts": 43441,
+        "converterErrors": 311,
+        "droppedInvalid": 0,
+        "cosmeticSelectors": 7,
+        "scriptlets": 291,
+        "extendedCss": 5,
+        "skipped": {
+          "too-broad": 1,
+          "procedural": 7,
+          "badfilter": 1,
+          "skip:HtmlFilteringRule": 6,
+          "domain-unusable": 5,
+          "scriptlet-unknown": 26
+        }
+      },
+      "annoyances": {
+        "dnrRules": 1931,
+        "blockedHosts": 180,
+        "converterErrors": 1,
+        "droppedInvalid": 0,
+        "cosmeticSelectors": 33984,
+        "scriptlets": 0,
+        "extendedCss": 56,
+        "skipped": {
+          "domain-unusable": 18
+        }
+      }
+    }
   }
 }

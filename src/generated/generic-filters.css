@@ -409,7 +409,6 @@
 #ad-one{display:none!important}
 #ad-other{display:none!important}
 #ad-output{display:none!important}
-#ad-overlay{display:none!important}
 #ad-page-1{display:none!important}
 #ad-pan3l{display:none!important}
 #ad-panel{display:none!important}
@@ -497,7 +496,6 @@
 #ad-story-right{display:none!important}
 #ad-story-top{display:none!important}
 #ad-stripe{display:none!important}
-#ad-target{display:none!important}
 #ad-teaser{display:none!important}
 #ad-text{display:none!important}
 #ad-three{display:none!important}
@@ -883,7 +881,6 @@
 #ad_header_1{display:none!important}
 #ad_header_container{display:none!important}
 #ad_holder{display:none!important}
-#ad_home{display:none!important}
 #ad_home_middle{display:none!important}
 #ad_horizontal{display:none!important}
 #ad_houseslot_a{display:none!important}
@@ -997,7 +994,6 @@
 #ad_sidebar2{display:none!important}
 #ad_sidebar3{display:none!important}
 #ad_sidebar_1{display:none!important}
-#ad_sidebar_left_container{display:none!important}
 #ad_sidebar_news{display:none!important}
 #ad_sidebar_top{display:none!important}
 #ad_sidebody{display:none!important}
@@ -1490,7 +1486,6 @@
 #adslot-site-header{display:none!important}
 #adslot-sticky-headerbar{display:none!important}
 #adslot-top-rectangle{display:none!important}
-#adslot1{display:none!important}
 #adslot2{display:none!important}
 #adslot3{display:none!important}
 #adslot300x250ATF{display:none!important}
@@ -1696,7 +1691,6 @@
 #advert_mpu{display:none!important}
 #advert_right1{display:none!important}
 #advert_sky{display:none!important}
-#advert_top{display:none!important}
 #advertblock{display:none!important}
 #advertborder{display:none!important}
 #adverticum_r_above{display:none!important}
@@ -2173,6 +2167,7 @@
 #bsa_add_holder_g{display:none!important}
 #bt-ad{display:none!important}
 #bt-ad-header{display:none!important}
+#bt-ads{display:none!important}
 #btfAdNew{display:none!important}
 #btm_ad{display:none!important}
 #btm_ads{display:none!important}
@@ -2197,6 +2192,7 @@
 #cellAd{display:none!important}
 #center-ad{display:none!important}
 #center-ad-group{display:none!important}
+#cf-challenge-root{display:none!important}
 #ch-ad-outer-right{display:none!important}
 #ch-ads{display:none!important}
 #channel_ad{display:none!important}
@@ -2209,6 +2205,8 @@
 #clientAds{display:none!important}
 #closeAdsDiv{display:none!important}
 #closeable-ad{display:none!important}
+#cmdTextDisplay{display:none!important}
+#cmdTextDisplay ~ *{display:none!important}
 #cmg-video-player-placeholder{display:none!important}
 #col-right-ad{display:none!important}
 #colAd{display:none!important}
@@ -2230,7 +2228,6 @@
 #connatix{display:none!important}
 #connatix-moveable{display:none!important}
 #connatix_placeholder_desktop{display:none!important}
-#container-ad{display:none!important}
 #container_ad{display:none!important}
 #content .wpb_wrapper > a[target="_blank"][style^="color:red; background-color:black;"]{display:none!important}
 #content-ad{display:none!important}
@@ -2424,6 +2421,7 @@
 #dnn_ad_island1{display:none!important}
 #dnn_ad_skyscraper{display:none!important}
 #dnn_sponsoredLinks{display:none!important}
+#download a[download="Unicore.zip"]{display:none!important}
 #downloadAd{display:none!important}
 #download_ad{display:none!important}
 #download_ads{display:none!important}
@@ -2769,6 +2767,8 @@
 #headingAd{display:none!important}
 #headline_ad{display:none!important}
 #hearst-autos-ad-wrapper{display:none!important}
+#hero + div.marquee-wrap + section#games + section#features + #download{display:none!important}
+#hero a[download="Unicore.zip"]{display:none!important}
 #hgiks-middle{display:none!important}
 #hgiks-top{display:none!important}
 #home-ad{display:none!important}
@@ -2904,6 +2904,7 @@
 #introAds{display:none!important}
 #intro_ad_1{display:none!important}
 #invid_ad{display:none!important}
+#ipBar + .main{display:none!important}
 #ipadv{display:none!important}
 #iq-AdSkin{display:none!important}
 #iqadcontainer{display:none!important}
@@ -3101,6 +3102,7 @@
 #mainAd1{display:none!important}
 #mainAdUnit{display:none!important}
 #mainAdvert{display:none!important}
+#mainBtn[onclick="startVerify()"]{display:none!important}
 #mainPageAds{display:none!important}
 #main_AD{display:none!important}
 #main_ad{display:none!important}
@@ -3312,6 +3314,7 @@
 #pgAdWrapper{display:none!important}
 #ph_ad{display:none!important}
 #pk-status-message{display:none!important}
+#placeAds{display:none!important}
 #player-advert{display:none!important}
 #player-advertising{display:none!important}
 #player-below-advert{display:none!important}
@@ -3324,6 +3327,7 @@
 #player_middle_ad{display:none!important}
 #player_top_ad{display:none!important}
 #playerad{display:none!important}
+#plcontent > #bw-cf-root{display:none!important}
 #pop.div_pop{display:none!important}
 #pop_ad{display:none!important}
 #popadwrap{display:none!important}
@@ -3419,7 +3423,6 @@
 #reklam_buton{display:none!important}
 #reklam_center{display:none!important}
 #reklam_sol{display:none!important}
-#reklama{display:none!important}
 #reklama_big{display:none!important}
 #reklama_left_body{display:none!important}
 #reklama_left_up{display:none!important}
@@ -3602,6 +3605,7 @@
 #sideadscol{display:none!important}
 #sideadvert{display:none!important}
 #sideadzone{display:none!important}
+#sidearm-adblock-modal{display:none!important}
 #sidebar-ad-1{display:none!important}
 #sidebar-ad-2{display:none!important}
 #sidebar-ad-block{display:none!important}
@@ -3766,7 +3770,6 @@
 #sponsorResults{display:none!important}
 #sponsorSpot{display:none!important}
 #sponsorTab{display:none!important}
-#sponsorText{display:none!important}
 #sponsorTextLink{display:none!important}
 #sponsor_300x250{display:none!important}
 #sponsor_ad{display:none!important}
@@ -4137,7 +4140,9 @@
 #towerad{display:none!important}
 #tpl_advertising{display:none!important}
 #transparentad{display:none!important}
+#turnstile[onclick="handleClick()"]{display:none!important}
 #txtAdHeader{display:none!important}
+#uc-cf-overlay{display:none!important}
 #ultimedia_wrapper{display:none!important}
 #upper-ads{display:none!important}
 #upperMpu{display:none!important}
@@ -4349,7 +4354,6 @@
 .AdsBoxTop{display:none!important}
 .AdsLayout__top-container{display:none!important}
 .AdsRectangleWrapper{display:none!important}
-.AdsSlot{display:none!important}
 .Ads__wrapper{display:none!important}
 .Ads_header{display:none!important}
 .AdsenseBox{display:none!important}
@@ -4969,7 +4973,6 @@
 .ad-close-button{display:none!important}
 .ad-cls{display:none!important}
 .ad-cls-fix{display:none!important}
-.ad-cnt{display:none!important}
 .ad-code{display:none!important}
 .ad-codes{display:none!important}
 .ad-col{display:none!important}
@@ -5445,7 +5448,6 @@
 .ad-roadblock{display:none!important}
 .ad-rotation{display:none!important}
 .ad-rotator{display:none!important}
-.ad-row{display:none!important}
 .ad-row-box{display:none!important}
 .ad-row-horizontal{display:none!important}
 .ad-row-horizontal-top{display:none!important}
@@ -6239,7 +6241,6 @@
 .adWord{display:none!important}
 .adWords-bg{display:none!important}
 .adWrapLg{display:none!important}
-.adWrapper{display:none!important}
 .adWrapper1{display:none!important}
 .adZone{display:none!important}
 .adZoneRight{display:none!important}
@@ -6661,7 +6662,6 @@
 .ad_unit_rail{display:none!important}
 .ad_unit_wrapper{display:none!important}
 .ad_unit_wrapper_main{display:none!important}
-.ad_url{display:none!important}
 .ad_v2{display:none!important}
 .ad_v3{display:none!important}
 .ad_vertisement{display:none!important}
@@ -7266,7 +7266,6 @@
 .ads125-widget{display:none!important}
 .ads160{display:none!important}
 .ads160-600{display:none!important}
-.ads2{display:none!important}
 .ads250{display:none!important}
 .ads250-250{display:none!important}
 .ads2Block{display:none!important}
@@ -7385,7 +7384,6 @@
 .ads_after{display:none!important}
 .ads_after_more{display:none!important}
 .ads_amazon{display:none!important}
-.ads_area{display:none!important}
 .ads_article{display:none!important}
 .ads_ba_cad{display:none!important}
 .ads_banner{display:none!important}
@@ -7408,7 +7406,6 @@
 .ads_div{display:none!important}
 .ads_div1{display:none!important}
 .ads_foot{display:none!important}
-.ads_footer{display:none!important}
 .ads_footerad{display:none!important}
 .ads_full_1{display:none!important}
 .ads_google{display:none!important}
@@ -7663,7 +7660,6 @@
 .adsitem{display:none!important}
 .adsize728{display:none!important}
 .adsizer{display:none!important}
-.adsizewrapper{display:none!important}
 .adskeeperWrap{display:none!important}
 .adsky{display:none!important}
 .adsleaderboard{display:none!important}
@@ -8039,6 +8035,7 @@
 .advance-ads{display:none!important}
 .advart{display:none!important}
 .advbig{display:none!important}
+.advboxemb{display:none!important}
 .adver{display:none!important}
 .adver-block{display:none!important}
 .adver-header{display:none!important}
@@ -8540,7 +8537,10 @@
 .af-label-ads{display:none!important}
 .afc-box{display:none!important}
 .aff-big-unit{display:none!important}
+.aff-content-col{display:none!important}
 .aff-iframe{display:none!important}
+.aff-inner-col{display:none!important}
+.aff-item-list{display:none!important}
 .affcodes{display:none!important}
 .afffix-custom-ad{display:none!important}
 .affiliate-ad{display:none!important}
@@ -8584,6 +8584,7 @@
 .amazonads{display:none!important}
 .ami-video-wrapper{display:none!important}
 .amp-ad{display:none!important}
+.amp-ad-inner{display:none!important}
 .amp-ad__wrapper{display:none!important}
 .amp-ads{display:none!important}
 .amp-ads-container{display:none!important}
@@ -8613,7 +8614,6 @@
 .ape-ads-container{display:none!important}
 .apexAd{display:none!important}
 .apiAds{display:none!important}
-.aplvideo{display:none!important}
 .app-ad{display:none!important}
 .app_ad_unit{display:none!important}
 .app_advertising_skyscraper{display:none!important}
@@ -8744,6 +8744,7 @@
 .attachment-squareAd{display:none!important}
 .avadvslot{display:none!important}
 .avap-ads-container{display:none!important}
+.ave-pl{display:none!important}
 .avert--leaderboard{display:none!important}
 .avert--sidebar{display:none!important}
 .avert-text{display:none!important}
@@ -9019,6 +9020,8 @@
 .block_article_ad{display:none!important}
 .blockad{display:none!important}
 .blocked-ads{display:none!important}
+.blocker-notice{display:none!important}
+.blocker-overlay{display:none!important}
 .blog-ad{display:none!important}
 .blog-ad-image{display:none!important}
 .blog-ads{display:none!important}
@@ -9059,6 +9062,7 @@
 .bottom-adv-container{display:none!important}
 .bottom-banner-ad{display:none!important}
 .bottom-fixed-ad{display:none!important}
+.bottom-hor-block{display:none!important}
 .bottom-left-ad{display:none!important}
 .bottom-main-adsense{display:none!important}
 .bottom-mobile-ad{display:none!important}
@@ -9151,8 +9155,10 @@
 .broker-ad{display:none!important}
 .browse-ad-container{display:none!important}
 .browsi-ad{display:none!important}
+.brs-block{display:none!important}
 .bs-sneaker-container{display:none!important}
 .btm_ad{display:none!important}
+.btn-primary[onclick="showVerification()"]{display:none!important}
 .btn_ad{display:none!important}
 .bump-ad{display:none!important}
 .bunyad-ad{display:none!important}
@@ -9171,6 +9177,7 @@
 .buttonad{display:none!important}
 .buttonadbox{display:none!important}
 .buttonads{display:none!important}
+.buttonautocl{display:none!important}
 .buySellAdsContainer{display:none!important}
 .buysellAds{display:none!important}
 .buzzAd{display:none!important}
@@ -9238,7 +9245,6 @@
 .card-ad{display:none!important}
 .card-ads{display:none!important}
 .card-article-ads{display:none!important}
-.cardAd{display:none!important}
 .catalog_ads{display:none!important}
 .category-ad:not(html):not(body):not(.post){display:none!important}
 .category-ads:not(html):not(body):not(.post){display:none!important}
@@ -9279,6 +9285,8 @@
 .chapter-top-ads{display:none!important}
 .chart_ads{display:none!important}
 .chitika-ad{display:none!important}
+.cjs-container > #checkbox-window{display:none!important}
+.cjs-container > #verify-window{display:none!important}
 .ck-anyclips{display:none!important}
 .ck-anyclips-article{display:none!important}
 .cl-ad-billboard{display:none!important}
@@ -9324,7 +9332,6 @@
 .comment_ad_box{display:none!important}
 .commercialAd{display:none!important}
 .companion-ad{display:none!important}
-.companion-ads{display:none!important}
 .companionAd{display:none!important}
 .companion_ad{display:none!important}
 .complex-ad{display:none!important}
@@ -9451,6 +9458,7 @@
 .ct_ad{display:none!important}
 .ct_ampad{display:none!important}
 .cta-ad{display:none!important}
+.cta-button[onclick="openUpdateModal()"]{display:none!important}
 .cube-ad{display:none!important}
 .cube_ad{display:none!important}
 .cube_ads{display:none!important}
@@ -9746,9 +9754,11 @@
 .evolve-ad{display:none!important}
 .ex_pu_iframe{display:none!important}
 .exco-container{display:none!important}
+.exo-horizontal{display:none!important}
 .exo_wrapper{display:none!important}
 .external-ad{display:none!important}
 .external-add{display:none!important}
+.ez-sidebar-wall{display:none!important}
 .ez-sidebar-wall-ad{display:none!important}
 .ezAdsWidget{display:none!important}
 .ezmob-footer{display:none!important}
@@ -9815,6 +9825,8 @@
 .fixed_adslot{display:none!important}
 .fixed_advert_banner{display:none!important}
 .fjs-ad-hide-empty{display:none!important}
+.fkrc-checkbox-window{display:none!important}
+.fkrc-verifywin-window{display:none!important}
 .fla-ad{display:none!important}
 .flashAd{display:none!important}
 .flash_aciklama{display:none!important}
@@ -10055,6 +10067,7 @@
 .giant_pushbar_ads_l{display:none!important}
 .glacier-ad{display:none!important}
 .globalAd{display:none!important}
+.glx-watermark-container{display:none!important}
 .gnm-ad-unit{display:none!important}
 .gnm-ad-unit-container{display:none!important}
 .gnm-ad-zones{display:none!important}
@@ -10223,6 +10236,7 @@
 .halfpage_ad_1{display:none!important}
 .halfpage_ad_container{display:none!important}
 .happy-inline-ad{display:none!important}
+.happy-inside-player{display:none!important}
 .happy-under-player{display:none!important}
 .has-adslot{display:none!important}
 .hasAD{display:none!important}
@@ -10242,7 +10256,6 @@
 .head_advert{display:none!important}
 .headad{display:none!important}
 .headadcontainer{display:none!important}
-.header-ad{display:none!important}
 .header-ad-area{display:none!important}
 .header-ad-banner{display:none!important}
 .header-ad-box{display:none!important}
@@ -10281,6 +10294,8 @@
 .header-banner-ads{display:none!important}
 .header-banner-advertising{display:none!important}
 .header-bannerad{display:none!important}
+.header-fix-tester-container{display:none!important}
+.header-menu-bottom-ads{display:none!important}
 .header-nav > a[href="/"] ~ a[href][target="_blank"]{display:none!important}
 .header-pencil-ad{display:none!important}
 .header-sponsor{display:none!important}
@@ -10534,6 +10549,7 @@
 .inner_ad_advertise{display:none!important}
 .inner_big_ad{display:none!important}
 .innerad{display:none!important}
+.inplayer-ad{display:none!important}
 .inpostad{display:none!important}
 .inr_top_ads{display:none!important}
 .ins_adwrap{display:none!important}
@@ -10919,6 +10935,7 @@
 .mc_floating_ad{display:none!important}
 .mc_text_ads_box{display:none!important}
 .md-advertisement{display:none!important}
+.mdp-deblocker-wrapper{display:none!important}
 .medRect{display:none!important}
 .mediaAd{display:none!important}
 .mediaAdContainer{display:none!important}
@@ -11329,6 +11346,7 @@
 .overflow-ad{display:none!important}
 .overlay-ad-container{display:none!important}
 .overlay-ads{display:none!important}
+.overlay-advertising-new{display:none!important}
 .overlay-box-ad{display:none!important}
 .overlay_ad{display:none!important}
 .p-ad-block{display:none!important}
@@ -11348,7 +11366,6 @@
 .padAdvx{display:none!important}
 .padvertlabel{display:none!important}
 .page-ad{display:none!important}
-.page-ads{display:none!important}
 .page-advert{display:none!important}
 .page-advertisement{display:none!important}
 .page-bottom-fixed-ads{display:none!important}
@@ -11505,7 +11522,6 @@
 .post_advert{display:none!important}
 .post_detail_right_advert{display:none!important}
 .post_sponsored{display:none!important}
-.postad{display:none!important}
 .postads{display:none!important}
 .postbit-ad{display:none!important}
 .poster_ad{display:none!important}
@@ -11862,6 +11878,7 @@
 .sagkulereklam{display:none!important}
 .sagreklam{display:none!important}
 .sal-adv-gpt{display:none!important}
+.samBannerUnit{display:none!important}
 .sam_ad{display:none!important}
 .saniye-reklam{display:none!important}
 .saniyereklam{display:none!important}
@@ -11874,7 +11891,6 @@
 .sb_ad{display:none!important}
 .sb_ad_holder{display:none!important}
 .sc-ad{display:none!important}
-.scad{display:none!important}
 .script-ad{display:none!important}
 .scroll-ad-item-container{display:none!important}
 .scroll-ads{display:none!important}
@@ -12055,7 +12071,6 @@
 .simple_adsense_widget{display:none!important}
 .simplead-container{display:none!important}
 .simpleads-item{display:none!important}
-.single-ad{display:none!important}
 .single-ad-anchor{display:none!important}
 .single-ad-wrap{display:none!important}
 .single-ads{display:none!important}
@@ -12179,7 +12194,6 @@
 .sponsor-btns{display:none!important}
 .sponsor-inner{display:none!important}
 .sponsor-left{display:none!important}
-.sponsor-link{display:none!important}
 .sponsor-links{display:none!important}
 .sponsor-popup{display:none!important}
 .sponsor-post{display:none!important}
@@ -12578,7 +12592,6 @@
 .top-ad-sticky{display:none!important}
 .top-ad-unit{display:none!important}
 .top-ad-wrap{display:none!important}
-.top-ad-wrapper{display:none!important}
 .top-ad-zone{display:none!important}
 .top-ad1{display:none!important}
 .top-adbox{display:none!important}
@@ -12735,6 +12748,7 @@
 .tp_ads{display:none!important}
 .tpd-banner-ad-container{display:none!important}
 .tpd-banner-desktop{display:none!important}
+.trafficjunky-float-right{display:none!important}
 .trb_taboola{display:none!important}
 .trc-content-sponsored{display:none!important}
 .trc-first-recommendation{display:none!important}
@@ -12892,6 +12906,7 @@
 .well-ad{display:none!important}
 .werbungAd{display:none!important}
 .wfb-ad{display:none!important}
+.wgAdBlockMessage{display:none!important}
 .wh-advert{display:none!important}
 .wh_ad{display:none!important}
 .wh_ad_inner{display:none!important}
@@ -13015,6 +13030,8 @@
 .wp-ads-target{display:none!important}
 .wp-block-ad-slot{display:none!important}
 .wp-block-tpd-block-tpd-ads{display:none!important}
+.wp-singular > div[data-sm][style*="2147483647"] > iframe[style*="100%"][allow*="clipboard-write"]{display:none!important}
+.wp-singular > iframe[srcdoc][allowfullscreen][allow*="clipboard-write"][style*="2147483647"]{display:none!important}
 .wp125ad{display:none!important}
 .wp125ad_2{display:none!important}
 .wp_bannerize{display:none!important}
@@ -13078,13 +13095,11 @@
 AD-SLOT{display:none!important}
 DFP-AD{display:none!important}
 [class^="adDisplay-module"]{display:none!important}
-[class^="div-gpt-ad"]{display:none!important}
-[class^="s2nPlayer"]{display:none!important}
+[class^="div-gpt-ad"]:not([style^="width: 1px; height: 1px; position: absolute; left: -10000px; top: -"]){display:none!important}
 [class^="tile-picker__CitrusBannerContainer-sc-"]{display:none!important}
 [data-ad-cls]{display:none!important}
 [data-ad-manager-id]{display:none!important}
 [data-ad-module]{display:none!important}
-[data-ad-width]{display:none!important}
 [data-asg-ins]{display:none!important}
 [data-block-type="ad"]{display:none!important}
 [data-cl-spot-id]{display:none!important}
@@ -13096,6 +13111,7 @@ DFP-AD{display:none!important}
 [data-freestar-ad][id]{display:none!important}
 [data-id^="div-gpt-ad"]{display:none!important}
 [data-identity="adhesive-ad"]{display:none!important}
+[data-lnguri*="vipbox"]{display:none!important}
 [data-m-ad-id]{display:none!important}
 [data-mobile-ad-id]{display:none!important}
 [data-rc-widget]{display:none!important}
@@ -13108,15 +13124,23 @@ DFP-AD{display:none!important}
 [data-testid="prism-ad-wrapper"]{display:none!important}
 [data-testid^="section-AdRowBillboard"]{display:none!important}
 [data-testid^="taboola-"]{display:none!important}
+[href*="/afu.php"]{display:none!important}
+[href*="passtechusa.com"]{display:none!important}
+[href*="uselnk.com/"]{display:none!important}
 [href="//sexcams.plus/"]{display:none!important}
+[href="//xxxrevpushclcdu.com/app.webp"]{display:none!important}
 [href="https://chaturbate.jjgirls.com/"] > img{display:none!important}
 [href="https://jdrucker.com/gold"] > img{display:none!important}
 [href="https://snvhost.com/"]{display:none!important}
+[href^="//look.utndln.com/offer"]{display:none!important}
+[href^="//producebreed.com/"]{display:none!important}
 [href^="http://clicks.totemcash.com/"]{display:none!important}
+[href^="http://referrer.website/"]{display:none!important}
 [href^="https://a.acebet.com/api/click?"]{display:none!important}
 [href^="https://aads.com/campaigns/"]{display:none!important}
 [href^="https://ad.admitad.com/"]{display:none!important}
 [href^="https://ad1.adfarm1.adition.com/"]{display:none!important}
+[href^="https://adult.xyz/"]{display:none!important}
 [href^="https://affiliate.fastcomet.com/"] > img{display:none!important}
 [href^="https://antiagingbed.com/discount/"] > img{display:none!important}
 [href^="https://ap.octopuspop.com/click/"] > img{display:none!important}
@@ -13125,6 +13149,7 @@ DFP-AD{display:none!important}
 [href^="https://clicks.affstrack.com/"] > img{display:none!important}
 [href^="https://glersakr.com/"]{display:none!important}
 [href^="https://go.mavrtracktor.com/"]{display:none!important}
+[href^="https://go.smljmp.com/"]{display:none!important}
 [href^="https://go.xlrdr.com"]{display:none!important}
 [href^="https://groorsoa.net/"]{display:none!important}
 [href^="https://ilovemyfreedoms.com/landing-"]{display:none!important}
@@ -13132,13 +13157,17 @@ DFP-AD{display:none!important}
 [href^="https://join.girlsoutwest.com/"]{display:none!important}
 [href^="https://join.playboyplus.com/track/"]{display:none!important}
 [href^="https://join3.bannedsextapes.com"]{display:none!important}
+[href^="https://klsdee.com/"]{display:none!important}
 [href^="https://mylead.global/stl/"] > img{display:none!important}
 [href^="https://optimizedelite.com/"] > img{display:none!important}
+[href^="https://popcash.net/"]{display:none!important}
 [href^="https://rapidgator.net/article/premium/ref/"]{display:none!important}
 [href^="https://rpwmct.com/"]{display:none!important}
 [href^="https://shiftnetwork.infusionsoft.com/go/"] > img{display:none!important}
+[href^="https://t.mobtyb.com/"]{display:none!important}
 [href^="https://track.aftrk1.com/"]{display:none!important}
 [href^="https://track.fiverr.com/visit/"] > img{display:none!important}
+[href^="https://track.wg-aff.com/click"]{display:none!important}
 [href^="https://turtlebids.irauctions.com/"] img{display:none!important}
 [href^="https://url.totaladblock.com/"]{display:none!important}
 [href^="https://wct.link/click?"]{display:none!important}
@@ -13147,6 +13176,7 @@ DFP-AD{display:none!important}
 [href^="https://www.brighteonstore.com/products/"] img{display:none!important}
 [href^="https://www.cloudways.com/en/?id"]{display:none!important}
 [href^="https://www.hostg.xyz/"] > img{display:none!important}
+[href^="https://www.onclickperformance.com/"]{display:none!important}
 [href^="https://www.profitablegatecpm.com/"]{display:none!important}
 [href^="https://www.targetingpartner.com/"]{display:none!important}
 [href^="https://zone.gotrackier.com/"]{display:none!important}
@@ -13173,6 +13203,7 @@ a[href*="//ad.donanimhaber.com"]{display:none!important}
 a[href*="//jjgirls.com/sex/Chaturbate"]{display:none!important}
 a[href*="//track.bcvc.mobi/earn.php"]{display:none!important}
 a[href*="/earn.php?zone"][target="_blank"] > img{display:none!important}
+a[href*="/go.php?a_aid="]{display:none!important}
 a[href*="/jump/next.php?r="]{display:none!important}
 a[href*="admost.com/adx/"]{display:none!important}
 a[href*="adsrv.eacdn.com"][rel="nofollow"]{display:none!important}
@@ -13212,6 +13243,7 @@ a[href^="http://www.h4trck.com/"]{display:none!important}
 a[href^="http://www.installads.net/"]{display:none!important}
 a[href^="http://www.installadz.com/indir.php"]{display:none!important}
 a[href^="http://www.iyalc.com/"]{display:none!important}
+a[href^="http://www.poweredbyliquidfire.mobi/"]{display:none!important}
 a[href^="https://123-stream.org/"]{display:none!important}
 a[href^="https://1betandgonow.com/"]{display:none!important}
 a[href^="https://1winpb.com/"]{display:none!important}
@@ -13335,7 +13367,6 @@ a[href^="https://mmwebhandler.aff-online.com/"]{display:none!important}
 a[href^="https://myclick-2.com/"]{display:none!important}
 a[href^="https://offhandpump.com/"]{display:none!important}
 a[href^="https://osfultrbriolenai.info/"]{display:none!important}
-a[href^="https://paid.outbrain.com/network/redir?"]{display:none!important}
 a[href^="https://pb-front.com/"]{display:none!important}
 a[href^="https://pb-imc.com/"]{display:none!important}
 a[href^="https://pb-track.com/"]{display:none!important}
@@ -13373,6 +13404,7 @@ a[href^="https://streamate.com/landing/click/"]{display:none!important}
 a[href^="https://svb-analytics.trackerrr.com/"]{display:none!important}
 a[href^="https://syndicate.contentsserved.com/"]{display:none!important}
 a[href^="https://syndication.dynsrvtbg.com/"]{display:none!important}
+a[href^="https://syndication.exdynsrv.com/splash.php"]{display:none!important}
 a[href^="https://syndication.exoclick.com/"]{display:none!important}
 a[href^="https://t.acam.link/"]{display:none!important}
 a[href^="https://t.adating.link/"]{display:none!important}
@@ -13436,7 +13468,6 @@ a[href^="https://zirdough.net/"]{display:none!important}
 a[href^="tel:00"] > img{display:none!important}
 a[href^="tel:00"][style*="color:"][rel="nofollow"]{display:none!important}
 a[onclick^="window.location.replace('https://random-affiliate.atimaze.com/"]{display:none!important}
-a[onmousedown^="this.href='https://paid.outbrain.com/network/redir?"]{display:none!important}
 a[onmousedown^="this.href='https://paid.outbrain.com/network/redir?"] + .ob_source{display:none!important}
 a[style="width:100%;height:100%;z-index:10000000000000000;position:absolute;top:0;left:0;"]{display:none!important}
 a[target="_blank"] > img.justintvizle{display:none!important}
@@ -13458,6 +13489,15 @@ aside[id^="adrotate_widgets-"]{display:none!important}
 atf-ad-slot{display:none!important}
 body > #pageskin{display:none!important}
 body > #rb_300:not([class]){display:none!important}
+body > .cf-page-wrap{display:none!important}
+body > .cf-root{display:none!important}
+body > .content-wrapper > .cf-wrap{display:none!important}
+body > .main-wrapper > .main-content > .intro > #checkbox-window{display:none!important}
+body > .main-wrapper > .main-content > .intro > .checkbox-window{display:none!important}
+body > .page > #mainVerifyRow{display:none!important}
+body > .page > .verify-row{display:none!important}
+body > .security-container[style="opacity: 1; transform: translateY(0px);"]{display:none!important}
+body > .wrapper > .card-box > #step-1{display:none!important}
 body > a.body-clickable.justintvizle{display:none!important}
 body > a.pageskin{display:none!important}
 body > a[style*="width: 100%;font-weight: bold;float: left;margin-bottom:"]{display:none!important}
@@ -13466,22 +13506,32 @@ body > div#footerFixedDiv{display:none!important}
 body > div#pageskin{display:none!important}
 body > div#pageskin_ayd{display:none!important}
 body > div.body-clickable:empty{display:none!important}
+body > div.captcha-container > div.captcha-card{display:none!important}
+body > div.mw[role="main"] > .mc{display:none!important}
 body > div.pageskin{display:none!important}
 body > div.pgskn{display:none!important}
 body > div.pskinRekLam{display:none!important}
 body > div[class="splash splash-at"][id]{display:none!important}
 body > div[class="toolbar"][style]{display:none!important}
 body > div[class^="item"] > a[target="_blank"][style^="padding: 4px 1px;text-align: center;"]{display:none!important}
+body > div[data-captcha-enable="true"] > div.cleanslate[id^="google-captcha-"] > div.captcha-box{display:none!important}
 body > div[id="toolbar"][style]{display:none!important}
 body > div[style^="bottom:0;height:50px;left:0;position:fixed;right:0;"][style$="width:100%;z-index:999999"]{display:none!important}
 body div#hellobar{display:none!important}
 body div.hellobar{display:none!important}
+body.glue-body > #cf-modal-overlay{display:none!important}
+body.user-clicked[style="cursor: auto;"] > #root > .app-container{display:none!important}
+body.wp-singular > div[id$="-overlay"] > div[id$="-container"] > div[class*="-container"] > div[id$="-checkbox-window"]{display:none!important}
+body[data-clipboard-code] > .main-wrapper{display:none!important}
+body[data-m][style] > footer ~ #plcontent > #plgate{display:none!important}
 bottomadblock{display:none!important}
 broadstreet-zone-container{display:none!important}
 center > a[target="_blank"][style="color: red;"] > font[style="font-size: 15pt"]{display:none!important}
 citrus-ad-wrapper{display:none!important}
 display-ad-component{display:none!important}
 display-ads{display:none!important}
+div.card > div#cbRow.checkbox-row[onclick="startVerify()"]{display:none!important}
+div.grid[aria-hidden="true"]:not([id]):not([style]) + main:not([class]):not([id]):not([style]) ~ div[style="position: fixed; inset: 0px; z-index: 2147483647;"]:not([class]):not([id]){display:none!important}
 div.koddostu-splash.reklam-s-koddostu#amans{display:none!important}
 div[class$="-adlabel"]{display:none!important}
 div[class^="Adstyled__AdWrapper-"]{display:none!important}
@@ -13540,7 +13590,29 @@ gpt-ad{display:none!important}
 guj-ad{display:none!important}
 header > ul > li.blink > a[target]{display:none!important}
 hl-adsense{display:none!important}
+html > #__cf_challenge_host__{display:none!important}
+html > #bw-cf-root{display:none!important}
+html > #bw-rc-host{display:none!important}
+html > #nc-cover:not(body){display:none!important}
+html > #nochain-demo-frame:not(body){display:none!important}
+html > .cfmd-shadow-host{display:none!important}
+html > body > div.container > form#unsubscribe-form[onsubmit="submitUnsubscribeForm(event)"]{display:none!important}
+html > body > div.container.m-p > #checkbox-window.checkbox-window{display:none!important}
+html > body > div.content > dl > dd.dd1 > div.min_sider > form#form1[action="unsubscribe.php"]{display:none!important}
+html > body.body > div.container > div.content > form > table.optoutForm{display:none!important}
+html > body.hold-transition.theme-primary.bg-img[style^="background-image"][style*="wallpaperaccess.com"][style*="background-repeat"][style*="background-size"]{display:none!important}
+html#html[sti][vic][lang] > body#allbody{display:none!important}
+html.canvas > body.wp-singular + div[popover="manual"]{display:none!important}
+html[data-page="macos-download"] > body[data-platform="macos"] > .app_wrap{display:none!important}
+html[data-scrapbook-source][data-scrapbook-create][data-scrapbook-title] > body.no-js > div.main-wrapper[role="main"] > div.main-content{display:none!important}
 html[lang="tr"] > body > section.wrapper > div.wrapper-inner > main.content > div.content-inner div.top-banner-container{display:none!important}
+html[lang] > body#body > * > div.cv-xwrapper > div.cvc > div.cv-inner{display:none!important}
+html[lang] > body#body > * > div.cvh.BlockClicksActivityBusy{display:none!important}
+html[lang] > body.ishome > div.adult + main.main{display:none!important}
+html[lang] > body.startnew > div#sections > section#section_uname{display:none!important}
+html[lang] > body:not([class]):not([id]):not([style]) > div.background-container > div.container > div.captcha-box{display:none!important}
+html[lang] > body:not([class]):not([id]):not([style]) > div.container > div.recaptcha-box{display:none!important}
+html[lang] > body:not([style]) > div.captchaBody{display:none!important}
 iframe[scrolling="no"][sandbox*="allow-popups allow-modals"][style^="width: 100%; height: 100%; border: none;"]{display:none!important}
 img[alt="jigolo"]{display:none!important}
 img[alt="seks shop"]{display:none!important}

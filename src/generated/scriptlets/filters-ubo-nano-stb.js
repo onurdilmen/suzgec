@@ -1,0 +1,131 @@
+/* Süzgeç scriptlet: ubo-nano-stb — generated, do not edit */
+(() => {
+  'use strict';
+  const run = function adjustSetTimeout(source, args) {
+  var flag = "done";
+  var uniqueIdentifier = source.uniqueId + source.name + "_" + (Array.isArray(args) ? args.join("_") : "");
+  if (source.uniqueId) {
+    if (Window.prototype.toString[uniqueIdentifier] === flag) {
+      return;
+    }
+  }
+  function adjustSetTimeout(source, matchCallback, matchDelay, boost) {
+    var nativeSetTimeout = window.setTimeout;
+    var matchRegexp = toRegExp(matchCallback);
+    var timeoutWrapper = function timeoutWrapper(callback, delay) {
+      if (!isValidCallback(callback)) {
+        var message = `Scriptlet can't be applied because of invalid callback: '${callbackToString(callback)}'`;
+        logMessage(source, message);
+      } else if (matchRegexp.test(callbackToString(callback)) && isDelayMatched(matchDelay, delay)) {
+        delay *= getBoostMultiplier(boost);
+        hit(source);
+      }
+      for (var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+        args[_key - 2] = arguments[_key];
+      }
+      return nativeSetTimeout.apply(window, [ callback, delay, ...args ]);
+    };
+    window.setTimeout = timeoutWrapper;
+  }
+  function hit(e) {
+    if (e.verbose) {
+      try {
+        var n = console.trace.bind(console), i = "[AdGuard] ";
+        "corelibs" === e.engine ? i += e.ruleText : (e.domainName && (i += `${e.domainName}`), 
+        e.args ? i += `#%#//scriptlet('${e.name}', '${e.args.join("', '")}')` : i += `#%#//scriptlet('${e.name}')`), 
+        n && n(i);
+      } catch (e) {}
+      "function" == typeof window.__debug && window.__debug(e);
+    }
+  }
+  function isValidCallback(n) {
+    return "function" == typeof n || "string" == typeof n;
+  }
+  function callbackToString(t) {
+    if ("function" == typeof t) return Function.prototype.toString.call(t);
+    try {
+      return String(t);
+    } catch (n) {
+      return Object.prototype.toString.call(t);
+    }
+  }
+  function toRegExp(e) {
+    var r = e || "", t = "/";
+    if ("" === r) return new RegExp(".?");
+    var n, i, s = r.lastIndexOf(t), a = r.substring(s + 1), g = r.substring(0, s + 1), u = (i = a, 
+    (n = g).startsWith(t) && n.endsWith(t) && !n.endsWith("\\/") && function(e) {
+      if (!e) return false;
+      try {
+        return new RegExp("", e), !0;
+      } catch (e) {
+        return false;
+      }
+    }(i) ? i : "");
+    if (r.startsWith(t) && r.endsWith(t) || u) return new RegExp((u ? g : r).slice(1, -1), u);
+    var c = r.replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(c);
+  }
+  function getBoostMultiplier(t) {
+    var e = parseFloat(t), i = nativeIsNaN(e) || !nativeIsFinite(e) ? .05 : e;
+    return i < .001 && (i = .001), i > 50 && (i = 50), i;
+  }
+  function isDelayMatched(a, e) {
+    return shouldMatchAnyDelay(a) || e === getMatchDelay(a);
+  }
+  function logMessage(e, o) {
+    var r = arguments.length > 2 && void 0 !== arguments[2] && arguments[2], a = !(arguments.length > 3 && void 0 !== arguments[3]) || arguments[3], {name: n, verbose: g} = e;
+    if (r || g) {
+      var i = console.log;
+      a ? i(`${n}: ${o}`) : Array.isArray(o) ? i(`${n}:`, ...o) : i(`${n}:`, o);
+    }
+  }
+  function nativeIsNaN(N) {
+    return (Number.isNaN || window.isNaN)(N);
+  }
+  function nativeIsFinite(i) {
+    return (Number.isFinite || window.isFinite)(i);
+  }
+  function getMatchDelay(a) {
+    var e = parseInt(a, 10);
+    return nativeIsNaN(e) ? 1e3 : e;
+  }
+  function shouldMatchAnyDelay(n) {
+    return "*" === n;
+  }
+  var updatedArgs = args ? [].concat(source).concat(args) : [ source ];
+  try {
+    adjustSetTimeout.apply(this, updatedArgs);
+    if (source.uniqueId) {
+      Object.defineProperty(Window.prototype.toString, uniqueIdentifier, {
+        value: flag,
+        enumerable: false,
+        writable: false,
+        configurable: false
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+  const NAME = "ubo-nano-stb";
+  const ENTRIES = [[["","10000"],["spiele.bild.de"],[]],[["_0x","*"],["moviepilot.de"],[]],[["redirect","4000"],["imgadult.com","imgdrive.net","imgtaxi.com","imgwallet.com"],[]],[["dlw","40000"],["1fichier.com"],[]],[["ctt()","1000","0.001"],["1fichier.com"],[]],[["seconds"],["indi-share.com"],[]],[[],["techmyntra.net"],[]],[[],["srt.am"],[]],[[],["themeslide.com"],[]],[["ez","*","0.02"],["playretrogames.com"],[]],[[],["ausfile.com"],[]],[["run"],["gsm1x.xyz"],[]],[[],["siriusfiles.com"],[]],[["","","0.02"],["dokumen.tips"],[]],[[],["juegoviejo.com"],[]],[["tick","1000","0.001"],["sharemods.com"],[]],[["","","0.02"],["file.magiclen.org"],[]],[["","10000"],["gamefront.com"],[]],[[],["4share.vn"],[]],[[],["lnk2.cc"],[]],[["/SplashScreen|BannerAd/"],["gamearter.com"],[]],[["tick"],["files.im"],[]],[["","10000","0"],["subsvip.com"],[]],[["/outboundLink/"],["cyclingnews.com"],[]],[["t++","500"],["abcya.com"],[]],[["isPeriodic","*"],["watcho.com"],[]],[["native code","15000","0.001"],["dailypost.co.uk","dailystar.co.uk","mirror.co.uk"],[]],[["(null)","5000","0.001"],["dailypost.co.uk","dailystar.co.uk","mirror.co.uk"],[]],[["/EzoIvent|TDELAY/","5000"],["neurotray.com"],[]],[["b()","3000"],["theonion.com"],[]],[["ads","*"],["theonion.com"],[]],[["readyPromise","5000","0.001"],["20min.ch"],[]],[["taboola timeout","*","0.001"],["13tv.co.il"],[]],[["clearInterval(run)","5000","0.001"],["13tv.co.il"],[]],[["/TDELAY|EzoIvent/","*","0.001"],["tierlists.com"],[]],[["isPeriodic","2200","0.001"],["wunderground.com"],[]],[["isPeriodic","2300","0.001"],["wunderground.com"],[]],[["[native code]","3000","0.001"],["standard.co.uk"],[]],[["i||(e(),i=!0)","2500","0.001"],["standard.co.uk"],[]],[["adConfig","*","0.001"],["gameplayneo.com"],[]]];
+  const EXCEPTIONS = [];
+  const host = location.hostname;
+  const labels = host.split('.');
+  const chain = labels.map((_, i) => labels.slice(i).join('.'));
+  const matches = (list) => list.some((d) => chain.includes(d));
+  if (EXCEPTIONS.some(([args, include]) => args === null && matches(include))) return;
+  const disabled = new Set(EXCEPTIONS.filter(([args, include]) => args !== null && matches(include)).map(([args]) => JSON.stringify(args)));
+  const seen = new Set();
+  for (const [args, include, exclude] of ENTRIES) {
+    if ((include.length && !matches(include)) || matches(exclude)) continue;
+    const key = JSON.stringify(args);
+    if (disabled.has(key) || seen.has(key)) continue;
+    seen.add(key);
+    try {
+      run({ name: NAME, args, engine: 'extension', version: "2.5.1", verbose: false, domainName: host }, args);
+    } catch {
+      /* a failing scriptlet must never break the page */
+    }
+  }
+})();
