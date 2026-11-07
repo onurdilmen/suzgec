@@ -1,0 +1,70 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "requestDomains": ["fmhdfc.click", "agl005.tech", "adangle.online"],
+      "resourceTypes": [
+        "main_frame",
+        "sub_frame",
+        "stylesheet",
+        "script",
+        "image",
+        "font",
+        "object",
+        "xmlhttprequest",
+        "ping",
+        "media",
+        "websocket",
+        "other"
+      ]
+    }
+  },
+  {
+    "id": 2,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "requestDomains": [
+        "doubleclick.net",
+        "googlesyndication.com",
+        "googleadservices.com",
+        "adservice.google.com",
+        "popads.net",
+        "popcash.net",
+        "propellerads.com",
+        "propellerclick.com",
+        "adsterra.com",
+        "exoclick.com",
+        "exosrv.com",
+        "juicyads.com",
+        "onclickads.net",
+        "onclkds.com",
+        "hilltopads.net",
+        "a-ads.com",
+        "adnxs.com",
+        "taboola.com",
+        "outbrain.com",
+        "mgid.com",
+        "trafficjunky.net",
+        "clickadu.com",
+        "adcash.com",
+        "admaven.com",
+        "ad-maven.com",
+        "pushground.com",
+        "richads.com",
+        "galaksion.com",
+        "bidvertiser.com",
+        "revcontent.com",
+        "adskeeper.com",
+        "zeropark.com",
+        "dtscout.com",
+        "realsrv.com",
+        "tsyndicate.com",
+        "magsrv.com"
+      ],
+      "excludedResourceTypes": ["main_frame"]
+    }
+  }
+]

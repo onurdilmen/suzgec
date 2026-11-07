@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Süzgeç</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="head">
+      <div class="brand">
+        <img src="../icons/32.png" alt="" width="20" height="20" />
+        <span>Süzgeç</span>
+      </div>
+      <span class="site" id="site">—</span>
+    </header>
+
+    <section class="power">
+      <button class="toggle" id="pause" type="button" aria-pressed="true">
+        <span class="toggle-dot" aria-hidden="true"></span>
+        <span id="pause-label">Bu sitede koruma açık</span>
+      </button>
+    </section>
+
+    <section class="stats" aria-label="Bu sekme">
+      <div class="stat">
+        <strong id="s-network">0</strong><span>ağ isteği</span>
+      </div>
+      <div class="stat">
+        <strong id="s-hidden">0</strong><span>gizlenen öğe</span>
+      </div>
+      <div class="stat"><strong id="s-popup">0</strong><span>popup</span></div>
+    </section>
+
+    <section class="actions">
+      <button class="btn" id="pick" type="button">Öğe seç ve gizle</button>
+      <button class="btn ghost" id="clear-custom" type="button" hidden>
+        Elle gizlenenleri sıfırla (<span id="custom-count">0</span>)
+      </button>
+      <label class="check">
+        <input type="checkbox" id="trackers" />
+        <span>İzleyicileri de engelle (Analytics, pixel…)</span>
+      </label>
+    </section>
+
+    <section class="learned">
+      <h2>
+        Öğrenilen reklam alan adları
+        <span class="count" id="learned-count">0</span>
+      </h2>
+      <p class="empty" id="learned-empty">
+        Henüz yok. Süzgeç reklam gördükçe buraya ekler.
+      </p>
+      <ul id="learned"></ul>
+    </section>
+
+    <footer class="foot">
+      Toplam engellenen: <strong id="total">0</strong>
+    </footer>
+    <template id="learned-item">
+      <li>
+        <div class="meta">
+          <span class="domain"></span>
+          <span class="why"></span>
+        </div>
+        <button class="forget" type="button">Unut</button>
+      </li>
+    </template>
+    <script src="popup.js" type="module"></script>
+  </body>
+</html>

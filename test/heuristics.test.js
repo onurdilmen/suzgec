@@ -222,3 +222,15 @@ test("selector validation rejects CSS injection", () => {
   assert.equal(H.isValidSelector("div.money-wrapper > a"), true);
   assert.equal(H.isValidSelector("a{} body{display:none"), false);
 });
+
+test("non-http popups fail closed unless opened from a real button", () => {
+  const g = { time: 1000, href: null, interactive: false, isLink: false };
+  assert.equal(H.judgePopup({ url: "data:text/html,x", pageUrl: PAGE, gesture: g, now: 1100 }).block, true);
+  assert.equal(H.judgePopup({ url: "javascript:alert(1)", pageUrl: PAGE, gesture: { ...g, interactive: true }, now: 1100 }).block, true);
+  assert.equal(H.judgePopup({ url: "blob:https://www.hdfilmcehennemi.nl/x", pageUrl: PAGE, gesture: { ...g, interactive: true }, now: 1100 }).block, false);
+});
+
+test("MAIN-world copy of heuristics is in sync (run npm run build)", () => {
+  const main = readFileSync(new URL("../src/heuristics.main.js", import.meta.url), "utf8");
+  assert.equal(main, source);
+});

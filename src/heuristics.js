@@ -235,12 +235,16 @@
         : { block: true, reason: "blank-popunder" };
     }
 
+    // Fail closed: anything we cannot classify is only allowed from a real button press.
+    const fromButton = gesture.interactive && !gesture.isLink;
     const target = parseUrl(text, pageUrl);
     const page = parseUrl(pageUrl);
-    if (!target || !page) return ALLOW;
+    if (!target || !page)
+      return fromButton ? ALLOW : { block: true, reason: "unparsable-url" };
     if (target.protocol === "javascript:")
       return { block: true, reason: "javascript-url" };
-    if (!isHttp(target)) return ALLOW;
+    if (!isHttp(target))
+      return fromButton ? ALLOW : { block: true, reason: "non-http-popup" };
     if (isSameSite(target.hostname, page.hostname)) return ALLOW;
     if (gesture.href && parseUrl(gesture.href)?.href === target.href)
       return ALLOW;

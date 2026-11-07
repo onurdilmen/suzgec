@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "Süzgeç — Akıllı Reklam Engelleyici",
+  "short_name": "Süzgeç",
+  "version": "0.1.0",
+  "description": "Reklamları, popunder'ları ve görünmez tıklama tuzaklarını engeller; yeni reklam alan adlarını kendiliğinden öğrenir.",
+  "minimum_chrome_version": "111",
+  "permissions": ["declarativeNetRequest", "storage", "scripting", "activeTab"],
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "background": {
+    "service_worker": "src/background.js",
+    "type": "module"
+  },
+  "declarative_net_request": {
+    "rule_resources": [
+      { "id": "ads", "enabled": true, "path": "rules/ads.json" },
+      { "id": "trackers", "enabled": true, "path": "rules/trackers.json" }
+    ]
+  },
+  "action": {
+    "default_title": "Süzgeç",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/16.png",
+      "32": "icons/32.png",
+      "48": "icons/48.png",
+      "128": "icons/128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  }
+}
