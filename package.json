@@ -1,6 +1,6 @@
 {
   "name": "suzgec",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "description": "Süzgeç — akıllı reklam engelleyici (Chrome MV3)",
@@ -9,7 +9,8 @@
     "lint:filters": "aglint filters/custom.txt",
     "filters": "npm run lint:filters && node scripts/filters/build.mjs && npm run build",
     "test": "npm run build && npm run lint:filters && node --test test/*.test.js",
-    "test:e2e": "npm run build && node test/e2e/run.mjs"
+    "test:e2e": "npm run build && node test/e2e/run.mjs",
+    "package": "npm test && node scripts/package.mjs"
   },
   "devDependencies": {
     "@adguard/aglint": "3.0.3",

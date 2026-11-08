@@ -14,7 +14,7 @@ const { chromium } = await import(CORE);
 // Optional: reuse an already-downloaded Chromium instead of the one playwright-core expects.
 const executablePath = process.env.CHROMIUM_PATH || undefined;
 
-const EXT = path.resolve(fileURLToPath(import.meta.url), '../../..');
+const EXT = process.env.SUZGEC_EXT ? path.resolve(process.env.SUZGEC_EXT) : path.resolve(fileURLToPath(import.meta.url), '../../..');
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
 
 const hits = [];
