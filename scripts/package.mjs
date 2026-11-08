@@ -8,7 +8,7 @@ import path from 'node:path';
 
 const root = path.resolve(import.meta.dirname, '..');
 const { version } = JSON.parse(await readFile(path.join(root, 'manifest.json'), 'utf8'));
-const INCLUDE = ['manifest.json', 'LICENSE', 'NOTICE.md', 'icons', 'popup', 'build', 'rules', 'redirects', 'src'];
+const INCLUDE = ['manifest.json', 'LICENSE', 'NOTICE.md', 'icons', 'popup', 'build', 'rules', 'redirects', 'src', 'filters/meta.json'];
 // Bundled into build/background.js; shipping the sources twice only adds weight.
 const EXCLUDE = ['src/background.js', 'src/filter-match.js', '*.DS_Store'];
 
