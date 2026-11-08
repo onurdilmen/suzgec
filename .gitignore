@@ -3,3 +3,5 @@ node_modules/
 test/e2e/out/
 *.zip
 filters/cache/
+_metadata/
+dist/
