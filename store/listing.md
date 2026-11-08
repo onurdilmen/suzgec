@@ -62,13 +62,13 @@ Süzgeç'in tek amacı web sayfalarındaki reklamları, reklam amaçlı pop-up'l
 
 **Veri kullanımı:** Hiçbir kategori işaretlenmez (kişisel bilgi, sağlık, finans, kimlik doğrulama, kişisel iletişim, konum, web geçmişi, kullanıcı etkinliği, web sitesi içeriği — hiçbiri toplanmaz). Üç onay kutusu da işaretlenir (veri satılmaz, amaç dışı kullanılmaz, kredi değerliliği için kullanılmaz).
 
-**Gizlilik politikası URL'si:** (yayınlanacak) — içerik `store/privacy.md`
+**Gizlilik politikası URL'si:** https://github.com/onurdilmen/suzgec/blob/main/store/privacy.md
 
 ## Yayın öncesi kontrol listesi
 
 - [x] GPLv3 `LICENSE` ve `NOTICE.md` paket içinde
 - [x] Paketlenmiş zip uçtan uca testlerden geçti (20/20)
 - [x] eval/uzaktan kod yok (yalnızca eval'i *engelleyen* scriptlet'ler var)
-- [ ] Gizlilik politikası herkese açık bir URL'de
-- [ ] Kaynak kodu herkese açık (GPLv3)
+- [x] Gizlilik politikası herkese açık: https://github.com/onurdilmen/suzgec/blob/main/store/privacy.md
+- [x] Kaynak kodu herkese açık (GPLv3): https://github.com/onurdilmen/suzgec
 - [ ] Geliştirici hesabı ($5, bir defalık) — Onur

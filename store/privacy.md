@@ -26,7 +26,7 @@ Süzgeç, TeknoWeb Teknoloji tarafından geliştirilen ücretsiz ve açık kayna
 
 ## Açık kaynak
 
-Süzgeç GPLv3 lisanslıdır; kaynak kodu herkese açıktır.
+Süzgeç GPLv3 lisanslıdır; kaynak kodu herkese açıktır: https://github.com/onurdilmen/suzgec
 
 ## İletişim
 
